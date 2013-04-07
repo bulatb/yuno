@@ -61,10 +61,13 @@ class UndefinedConfigKey(YunoError):
 
 
 class DataFileError(YunoError):
-    def __init__(self, message):
-        super(DataFileError, self).__init__(
-            'Operation failed on a data file.\nPython said: ' + message
-        )
+    message_wrapper = 'Operation failed on a data file.\nPython said: '
+
+    def __init__(self, message, use_raw=False):
+        if not use_raw:
+            message = DataFileError.message_wrapper + message
+
+        super(DataFileError, self).__init__(message)
 
 
 class converted(object):

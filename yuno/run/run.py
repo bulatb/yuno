@@ -124,14 +124,17 @@ def _run_phase_and_check(options):
 def _run_failed(options):
     """$ yuno run failed
     """
-    # Let main() deal with any errors raised in here.
-    # Right now some non-Yuno errors (IOErrors, etc) will just dump traces.
-
     print "Running tests that failed last time:\n"
 
-    with open('data/last-run.txt') as last_run:
-        failed_tests = re.findall(r'^f (.*)$', last_run.read(), re.MULTILINE)
-        test_set = [core.testing.Test(t) for t in failed_tests if t.strip()]
+    try:
+        with open('data/last-run.txt') as last_run:
+            failed_tests = re.findall('^f (.*)$', last_run.read(), re.MULTILINE)
+            test_set = [core.testing.Test(t) for t in failed_tests if t.strip()]
+    except (IOError, OSError) as e:
+        raise core.errors.DataFileError(
+            "Unreadable or missing run log. Have you run any tests?",
+            use_raw=True
+        )
 
     return _run_tests(options, test_set=test_set)
 
