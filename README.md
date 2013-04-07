@@ -68,9 +68,15 @@ Download and install
 
 ### Python check
 
-Yuno requires Python 2.7.x (not 2.6 or 3.x). It's a long, sad, highly fragmented story. If you don't already have it, or you have a different version, you should [get a copy](http://www.python.org/download/releases/2.7/) and install it somewhere nice. You can check your default Python install's version like this: `$ python --version`.
+Yuno requires Python 2.7.x (not 2.6 or 3.x). It's a long, sad, highly fragmented story. If you don't already have it, or you have a different version, you should [get a copy](http://www.python.org/download/releases/2.7/) and install it somewhere nice. You can check your default Python install's version like this: `$ python --version`. ProTip: for ieng6 users, Python 2.7 lives in `/software/common/python-2.7/bin/python2.7`.
 
-**ProTip:** for ieng6 users, Python 2.7 lives in `/software/common/python-2.7/bin/python2.7`.
+To run Yuno as `yuno.py` on non-Windows machines, you may need to make it executable:
+
+    $ chmod +x yuno.py
+
+If you have multiple Python installs and don't want to fiddle with shebangs, it might be good to make an alias for the runtime you want:
+
+    $ alias yuno="/path/to/python2.7 yuno.py"
 
 ### The framework
 
