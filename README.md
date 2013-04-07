@@ -70,12 +70,9 @@ Download and install
 
 Yuno requires Python 2.7.x (not 2.6 or 3.x). It's a long, sad, highly fragmented story. If you don't already have it, or you have a different version, you should [get a copy](http://www.python.org/download/releases/2.7/) and install it somewhere nice. You can check your default Python install's version like this: `$ python --version`. ProTip: for ieng6 users, Python 2.7 lives in `/software/common/python-2.7/bin/python2.7`.
 
-To run Yuno as `yuno.py` on non-Windows machines, you may need to make it executable:
-
-    $ chmod +x yuno.py
-
 If you have multiple Python installs and don't want to fiddle with shebangs, it might be good to make an alias for the runtime you want:
 
+    # Just one of many ways to do this
     $ alias yuno="/path/to/python2.7 yuno.py"
 
 ### The framework
@@ -111,6 +108,10 @@ If your care cup is [especially empty](http://pinterest.com/pin/1351784262870924
 Running tests
 -------------
 **Usage note:** For brevity, previous examples have assumed there was a PATH entry or alias named `yuno` for `yuno.py`. While it's nicer to type and makes commands look cleaner, the examples here are written out in full for easy copy-pasting. Aliases are available in [Bash](http://www.thegeekstuff.com/2010/04/unix-bash-alias-examples/) (Linux, OS X), [Windows](http://devblog.point2.com/2010/05/14/setup-persistent-aliases-macros-in-windows-command-prompt-cmd-exe-using-doskey/), and most other shells.
+
+To run Yuno directly as `yuno.py` on non-Windows machines, you may need to make it executable:
+
+    $ chmod +x /your/project/yuno/yuno.py
 
 ### Signatures
 
@@ -242,12 +243,12 @@ Yuno is stupid, like a brick. Bricks don't know if your tests should be passing.
 
 ### Signatures
 
-`yuno.py certify <glob>`<br/>
+`yuno.py certify files <glob>`<br/>
 `<newline-delimited stream> | yuno.py certify -`<br/>
 
 ### Flags
 
-  1. `-o, --overwrite` - If an answer file already exists, overwrite it without asking. Use with caution.
+  1. `--overwrite` - If an answer file already exists, overwrite it without asking. Use with caution.
 
   2. `--correct` - Don't ask if output is correct before accepting. Use with even more caution.
 
@@ -257,7 +258,7 @@ This feature works the same as `yuno run files`: the `<glob>` should match speci
 
 To generate an answer file for `my-first-test.rc`:
 
-    yuno.py certify phase1/check1/my-first-test.rc
+    yuno.py certify files phase1/check1/my-first-test.rc
 
 ### Creating by pipe
 
