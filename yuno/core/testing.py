@@ -79,7 +79,7 @@ class Test(object):
 
         path_to, filename = posixpath.split(path)
         path_to = '.' if not path_to else path_to
-        name = re.search(r'(.+)%s$' % source_extension, filename).group(1)
+        name = os.path.splitext(filename)[0]
 
         answer_filename = name + ANSWER_EXTENSION
         output_filename = name + OUTPUT_EXTENSION
@@ -266,7 +266,7 @@ class Harness(object):
                 passing = os.fdopen(os.open('passing.txt', read_or_create))
                 self._previously_failing = set([f.strip() for f in failing])
                 self._previously_passing = set([p.strip() for p in passing])
-            except (IOError, OSError, WindowsError):
+            except (IOError, OSError):
                 print "WARN: Failed to load history. Results won't be saved."
                 self._history_off = True
             finally:
@@ -422,7 +422,10 @@ def load_all(test_class=Test, filter_fn=None):
         for root, dirs, files in os.walk('.'):
             for filename in files:
                 if filename.endswith(SOURCE_EXTENSION):
-                    tests.append(test_class(posixpath.join(root, filename)[2:]))
+                    tests.append(
+                        # [2:] strips the ./ added by os.walk()
+                        test_class(posixpath.join(root, filename)[2:])
+                    )
 
     if filter_fn:
         return filter(filter_fn, tests)

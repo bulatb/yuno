@@ -37,7 +37,9 @@ class RunRecord(object):
                     line_type = RunRecord._line_types.get(line[0])
 
                     if line_type in fields:
-                        fields[line_type].append(util.strip_line_labels(line))
+                        fields[line_type].append(
+                            util.strip_line_labels(line).strip()
+                        )
                     elif line.startswith('='):
                         run_time = re.search(r'\[(.*)\]', line).group(1)
 

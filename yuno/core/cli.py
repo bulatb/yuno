@@ -14,9 +14,10 @@ def build_arg_parser():
     parser.add_argument(
         'command',
         metavar='command',
-        choices=['run', 'show', 'certify'],
+        choices=['run', 'show', 'certify', 'prune'],
         help='''One of: run (to run tests), show (results and settings),
-        or certify (to create tests).'''
+        certify (to create tests), or prune (to remove deleted and renamed
+        test paths from the history)'''
     )
 
     parser.add_argument(
