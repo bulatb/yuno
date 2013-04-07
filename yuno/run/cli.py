@@ -7,8 +7,13 @@ import diff_routines
 RUN_ALL = 'all'
 RUN_FAILED = 'failed'
 RUN_FAILING = 'failing'
+RUN_PASSED = 'passed'
+RUN_PASSING = 'passing'
 RUN_GLOB = '<glob>'
 RUN_PIPE = '-'
+ONE_ARG_COMMANDS = (
+    RUN_ALL, RUN_FAILED, RUN_FAILING, RUN_PASSED, RUN_PASSING, RUN_PIPE
+)
 
 RUN_PHASE = 'phase'
 RUN_CHECK = 'check'
@@ -27,18 +32,25 @@ class OverloadedArg(argparse.Action):
         # Explicit is better.
 
         if num_values == 1:
-            if values[0] == RUN_ALL:
-                command = RUN_ALL
-            elif values[0] == RUN_FAILED:
-                command = RUN_FAILED
-            elif values[0] == RUN_FAILING:
-                command = RUN_FAILING
-            elif values[0] == RUN_PIPE:
-                command = RUN_PIPE
+            if values[0] in ONE_ARG_COMMANDS:
+                command = values[0]
+            # if values[0] == RUN_ALL:
+            #     command = RUN_ALL
+            # elif values[0] == RUN_FAILED:
+            #     command = RUN_FAILED
+            # elif values[0] == RUN_FAILING:
+            #     command = RUN_FAILING
+            # elif values[0] == RUN_PASSED:
+            #     command = RUN_PASSED
+            # elif values[0] == RUN_PASSING:
+            #     command = RUN_PASSING
+            # elif values[0] == RUN_PIPE:
+            #     command = RUN_PIPE
             else: # it's a glob
                 command = RUN_GLOB
                 setattr(namespace, 'glob', values[0])
         elif num_values == 2:
+
             if values[0] == RUN_PHASE:
                 command = RUN_PHASE
                 setattr(namespace, 'phase', values[1])

@@ -356,7 +356,8 @@ class Suite(object):
 
 def load_from_glob(file_glob, test_class=Test):
     """Finds all test files matched by [file_glob] and returns them as a list
-    of test objects.
+    of [test_class] objects.
+
     """
     if '/**' in file_glob or '**/' in file_glob:
         globlib = __import__('yuno.core.recursive_glob', fromlist=['yuno.core'])
@@ -371,11 +372,16 @@ def load_from_glob(file_glob, test_class=Test):
 
 def load_from_file(name_or_handle, test_class=Test, line_filter=None):
     """Reads a file containing paths to test files (dirnames + basenames) and
-    returns them as a list of test objects. Any non-blank, non-whitespace line
-    is treated as a valid path.
+    returns them as a list of [test_class] objects. Any non-blank,
+    non-whitespace line is treated as a valid path.
 
     [name_or_handle] is a filename or an open file-like object. If an open file
     is given, it will be fully read but won't be closed.
+
+    [line_filter] is an optional function that takes a line and returns either
+    False or a string. If truthy, its output will be used in place of the
+    original line.
+
     """
     line_filter = (lambda x: x) if line_filter is None else line_filter
 
@@ -383,7 +389,10 @@ def load_from_file(name_or_handle, test_class=Test, line_filter=None):
         tests = []
 
         for line in handle:
-            line = line_filter(line.strip())
+            if line.strip() == '':
+                continue
+
+            line = line_filter(line)
             if line:
                 tests.append(test_class(line))
 
@@ -402,6 +411,12 @@ def load_from_file(name_or_handle, test_class=Test, line_filter=None):
 
 
 def load_all(test_class=Test, filter_fn=None):
+    """Returns all the tests (files ending in `config.source_extension`) in the
+    repository as a list of [test_class] objects.
+
+    If [filter_fn] is given, includes only tests for which it returns True.
+
+    """
     tests = []
     with working_dir(config.test_folder):
         for root, dirs, files in os.walk('.'):
@@ -416,6 +431,12 @@ def load_all(test_class=Test, filter_fn=None):
 
 
 def load_from_regex(compiled_pattern, test_class=Test):
+    """Returns all tests in the repository whose source file's full path
+    matches [compiled_pattern] as a list of [test_class] objects. For large
+    repositories or pathological globs, this may be faster than
+    `load_from_glob`.
+
+    """
     def regex_filter(test_case):
         return compiled_pattern.match(test_case.source.path)
 

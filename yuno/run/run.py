@@ -128,19 +128,20 @@ def _run_phase_and_check(options):
 def _run_failed(options):
     """$ yuno run failed
     """
+    def is_failed(test_path):
+        return test_path[2:] if test_path.startswith('f ') else False
+
+
     print "Running tests that failed last time:\n"
 
     try:
-        with open('data/last-run.txt') as last_run:
-            failed_tests = re.findall('^f (.*)$', last_run.read(), re.MULTILINE)
-            test_set = [core.testing.Test(t) for t in failed_tests if t.strip()]
-    except (IOError, OSError) as e:
-        raise core.errors.DataFileError(
-            "Unreadable or missing run log. Have you run any tests?",
-            use_raw=True
+        test_set = core.testing.load_from_file(
+            'data/last-run.txt', line_filter=is_failed
         )
-
-    return _run_tests(options, test_set=test_set)
+        return _run_tests(options, test_set=test_set)
+    except core.errors.DataFileError as e:
+        e.message = 'Unreadable or missing run log. Have you run any tests?'
+        raise e
 
 
 def _run_failing(options):
@@ -148,6 +149,32 @@ def _run_failing(options):
     """
     print "Running all tests currently failing:\n"
     return _run_suite(options, filename='data/failing.txt')
+
+
+def _run_passed(options):
+    """$ yuno run passed
+    """
+    def is_passed(test_path):
+        return test_path[2:] if test_path.startswith('p ') else False
+
+
+    print "Running all tests that passed last time:\n"
+
+    try:
+        test_set = core.testing.load_from_file(
+            'data/last-run.txt', line_filter=is_passed
+        )
+        return _run_tests(options, test_set=test_set)
+    except core.errors.DataFileError as e:
+        e.message = 'Unreadable or missing run log. Have you run any tests?'
+        raise e
+
+
+def _run_passing(options):
+    """$ yuno run passing
+    """
+    print "Running all tests currently passing:\n"
+    return _run_suite(options, filename='data/passing.txt')
 
 
 def _run_files(options):
@@ -240,6 +267,8 @@ def main(argv=sys.argv):
         cli.RUN_ALL: _run_all,
         cli.RUN_FAILED: _run_failed,
         cli.RUN_FAILING: _run_failing,
+        cli.RUN_PASSED: _run_passed,
+        cli.RUN_PASSING: _run_passing,
         cli.RUN_GLOB: _run_glob,
         cli.RUN_PHASE: _run_phase,
         cli.RUN_CHECK: _run_check,

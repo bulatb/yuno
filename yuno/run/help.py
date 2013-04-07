@@ -20,9 +20,13 @@ details:
       failed: run all tests that failed on the last run
       failing: run all tests that haven't passed since they last failed
 
+  run pass(ed|ing)
+      passed: run all tests that passed on the last run
+      passing: run all tests that haven't failed since they last passed
+
   run files <glob>
-      run specific files (as opposed to run <glob>, which runs all files in any
-      folders matched by <glob>)
+      run specific files (as opposed to run <glob>, which runs all files in
+      any folders matched by <glob>)
 
   run -
       run a newline-delimited stream of file paths given through a pipe

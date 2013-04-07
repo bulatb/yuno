@@ -132,13 +132,13 @@ To run Yuno directly as `yuno.py` on non-Windows machines, you may need to make 
 
 ### Running by folder
 
-If `run` receives one argument and it's not a special value (all, -, failed, or failing), it's taken as a Unix path [glob](http://wiki.bash-hackers.org/syntax/expansion/globs) representing folders in the repo to be searched recursively. Any files inside that have the right extension (.rc by default) will be run as tests.
+If `run` receives one argument and it doesn't match a special value (all, -, failed, failing, passed, or passing), it's taken as a Unix path [glob](http://wiki.bash-hackers.org/syntax/expansion/globs) representing folders in the repo to be searched recursively. Any files inside that have the right extension (.rc by default) will be run as tests.
 
 Every test in dir1/ or dir2/:
 
     yuno.py run dir[1-2]
 
-Every check ending in 2:
+Every test in every check ending in 2:
 
     yuno.py run phase*/check*2
 
@@ -160,15 +160,20 @@ Any test files inside matching folders or subfolders will be run.
 
 ### By status
 
-Like `all`, `failed` and `failing` can be used to run special sets of tests.
+Like `all`, `passed`/`failed` and `passing`/`failing` can be used to run special sets of tests.
 
-Every test that failed on the last run:
+Every test that passed (or failed) on the last run:
 
+    yuno.py run passed
     yuno.py run failed
 
 Every test that hasn't passed since it last failed:
 
     yuno.py run failing
+
+Every test that hasn't failed since it last passed:
+
+    yuno.py run passing
 
 
 ### By suite
@@ -276,9 +281,9 @@ The settings you can change are documented and defined in `settings/config.json`
 
 Except for the comments (lines starting with `//`), the config syntax is [standard JSON](http://en.wikipedia.org/wiki/JSON#Data_types.2C_syntax_and_example). Intrepid editors will find that Yuno's comment stripping code is very stupid, so comments at the ends of lines will be treated not so much like comments but like syntax errors. Complaints may be addressed to:
 
-  > ATTN: Roundfile Group
-  > 127 Wontfix Road
-  > Devnull, CA 92122
+  > ATTN: Roundfile Group -
+  > 127 Wontfix Road -
+  > Devnull, CA 92122 -
 
 ### Customizing output
 
