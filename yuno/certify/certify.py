@@ -2,7 +2,7 @@ import os
 import sys
 
 from yuno import core
-from yuno.core import testing, errors
+from yuno.core import errors, testing, util
 from yuno.core.config import config
 
 import cli, testing
@@ -55,7 +55,10 @@ def _certify_files(options):
 def _certify_pipe(options):
     print "Generating answer files for piped-in tests"
 
-    tests = core.testing.load_from_file(sys.stdin)
+    tests = core.testing.load_from_file(
+        sys.stdin,
+        line_filter=util.strip_line_labels
+    )
     _reset_stdin()
 
     harness = testing.AnswerGeneratingHarness(

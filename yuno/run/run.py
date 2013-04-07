@@ -78,7 +78,9 @@ def _run_pipe(options):
     """
     print "Running tests from pipe:\n"
 
-    test_set = core.testing.load_from_file(sys.stdin)
+    test_set = core.testing.load_from_file(
+        sys.stdin, line_filter=util.strip_line_labels
+    )
     return _run_tests(options, test_set=test_set)
 
 
@@ -86,6 +88,7 @@ def _run_phase(options):
     """$ yuno run phase <#>
     """
     print "Running phase %s:\n" % options.phase
+
     options.check = '*'
     return _run_phase_and_check(options)
 
@@ -94,6 +97,7 @@ def _run_check(options):
     """$ yuno run check <#>
     """
     print "Running check %s:\n" % options.check
+
     options.phase = '*'
     return _run_phase_and_check(options)
 

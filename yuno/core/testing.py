@@ -369,7 +369,7 @@ def load_from_glob(file_glob, test_class=Test):
         return [test_class(path) for path in globlib.glob(file_glob)]
 
 
-def load_from_file(name_or_handle, test_class=Test):
+def load_from_file(name_or_handle, test_class=Test, line_filter=None):
     """Reads a file containing paths to test files (dirnames + basenames) and
     returns them as a list of test objects. Any non-blank, non-whitespace line
     is treated as a valid path.
@@ -377,8 +377,17 @@ def load_from_file(name_or_handle, test_class=Test):
     [name_or_handle] is a filename or an open file-like object. If an open file
     is given, it will be fully read but won't be closed.
     """
+    line_filter = (lambda x: x) if line_filter is None else line_filter
+
     def get_tests(handle):
-        return [test_class(line) for line in handle if line.strip()]
+        tests = []
+
+        for line in handle:
+            line = line_filter(line.strip())
+            if line:
+                tests.append(test_class(line))
+
+        return tests
 
 
     with errors.converted((IOError, OSError), to=errors.DataFileError):
