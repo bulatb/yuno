@@ -108,10 +108,10 @@ Running tests
 
 ### Signatures
 
-`yuno.py run all` | `failed` | `failing` | `<glob>`
-`yuno.py run phase <#>` | `check <#>` | `suite <name>` | `files <glob>`
-`yuno.py run phase <#> check <#>`
-`<newline-delimited stream> | yuno.py run -`
+`yuno.py run all` | `failed` | `failing` | `<glob>`<br/>
+`yuno.py run phase <#>` | `check <#>` | `suite <name>` | `files <glob>`<br/>
+`yuno.py run phase <#> check <#>`<br/>
+`<newline-delimited stream> | yuno.py run -`<br/>
 
 ### Flags and options
 
@@ -232,12 +232,12 @@ Depending on your preference, you might want to create your source files in a te
 
 ### A word of warning
 
-Yuno is stupid, like a Python. Pythons don't know if your tests should be passing. If your answer files are wrong, tests could pass when they should fail and you may not catch the problem til your grades come back. That's why this feature is called `certify`: by running it, you certify your compiler's output for these cases will be right. Let typing the pretentious name remind you to be careful.
+Yuno is stupid, like a brick. Bricks don't know if your tests should be passing. If your answer files are wrong, tests could pass when they should fail and you may not catch the problem til your grades come back. That's why this feature is called `certify`: by running it, you certify your compiler's output for these cases will be right. Let typing the pretentious name remind you to be careful.
 
 ### Signatures
 
-`yuno.py certify <glob>`
-`<newline-delimited stream> | yuno.py certify -`
+`yuno.py certify <glob>`<br/>
+`<newline-delimited stream> | yuno.py certify -`<br/>
 
 ### Flags
 
