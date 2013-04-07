@@ -254,7 +254,7 @@ Yuno is stupid, like a brick. Bricks don't know if your tests should be passing.
 
 ### Creating by glob
 
-This feature works the same as `yuno run files`: the `<glob>` should match specific file names, including full paths and extensions, except the output will be answer files instead of test results. You'll be prompted every time it tries to overwrite a file unless you use `-o`.
+This feature works the same as `yuno run files`: the `<glob>` should match specific file names, including full paths and extensions, except the output will be answer files instead of test results. You'll be prompted every time it tries to overwrite a file unless you use `--overwrite`.
 
 To generate an answer file for `my-first-test.rc`:
 
