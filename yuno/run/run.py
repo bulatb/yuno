@@ -296,8 +296,16 @@ def main(argv=sys.argv):
         if options.command == cli.RUN_GLOB:
             print "To run specific tests, use:"
             print "    yuno.py run files path/to/test*.rc"
+
+        commands_using_globs = (cli.RUN_GLOB, cli.RUN_FILES)
+        if options.command in commands_using_globs and os.name == 'posix':
+            print "\nNOTE: Your shell may natively support globs. For " + \
+            "compatibility with Windows, Yuno needs to handle glob " + \
+            "expansion on its own. If they're not matching as " + \
+            "expected, try wrapping them in quotes or turning off " + \
+            "your glob expander."
         # TODO: this.
-        # elif options.command == cli.RUN_SUITE:
+        # if options.command == cli.RUN_SUITE:
         #     print "To see its contents, use:"
         #     print "    yuno.py show suite {}".format(options.suite)
 
