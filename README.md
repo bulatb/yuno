@@ -115,7 +115,7 @@ To run Yuno directly as `yuno.py` on non-Windows machines, you may need to make 
 
 ### Signatures
 
-`yuno.py run all` | `failed` | `failing` | `<glob>`<br/>
+`yuno.py run all` | `failed` | `failing` | `passed` | `passing` | `<glob>`<br/>
 `yuno.py run phase <#>` | `check <#>` | `suite <name>` | `files <glob>`<br/>
 `yuno.py run phase <#> check <#>`<br/>
 `<newline-delimited stream> | yuno.py run -`<br/>
@@ -281,9 +281,9 @@ The settings you can change are documented and defined in `settings/config.json`
 
 Except for the comments (lines starting with `//`), the config syntax is [standard JSON](http://en.wikipedia.org/wiki/JSON#Data_types.2C_syntax_and_example). Intrepid editors will find that Yuno's comment stripping code is very stupid, so comments at the ends of lines will be treated not so much like comments but like syntax errors. Complaints may be addressed to:
 
-  > ATTN: Roundfile Group -
-  > 127 Wontfix Road -
-  > Devnull, CA 92122 -
+  > ATTN: Roundfile group
+  > 127 Wontfix Road
+  > Devnull, CA 92122
 
 ### Customizing output
 
