@@ -21,8 +21,10 @@ def _show_file(filename, line_indent='  ', sort=True):
     with errors.converted(IOError, to=errors.DataFileError):
         with open(filename) as data_file:
             for line in (sorted(data_file) if sort else data_file):
-                print line_indent + line.strip()
-                lines_read += 1
+                line = line.strip()
+                if line != '':
+                    print line_indent + line
+                    lines_read += 1
 
     return lines_read
 
