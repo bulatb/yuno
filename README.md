@@ -148,7 +148,7 @@ Every test with a Companion Cube:
 
 ### By phase or check
 
-Being a Compilers tool, Yuno gives special treatment to repositories laid out in phases and checks. The `phase` and `check` commands can be used separately, together, or not at all. Each one's `<#>` may be a number, a number and a letter, or dash-separated range. (More on that below.)
+Being a Compilers tool, Yuno gives special treatment to repositories laid out in phases and checks. The `phase` and `check` commands can be used separately, together, or not at all&mdash;they just provide a nicer wrapper over using globs. Each one's `<#>` may be a number, a number and a letter, or dash-separated range. (More on that below.)
 
 Any test files inside matching folders or subfolders will be run.
 
@@ -160,10 +160,10 @@ Any test files inside matching folders or subfolders will be run.
 
 To support checks with multiple parts, ranges can slice on numbers and letters together. Each end may be one or more digits, optionally followed by a letter. For example, to run every test in every check between `check6b` and `check10` (inclusive):
 
-    # Runs 6b, 6c, 7, ... 9a, ..., 9z, ..., 10
+    # Runs 6b, 6c, 7, ... 9a, ..., 9z, ..., 10z
     yuno.py run check 6b-10
 
-**Note:** Yuno understands folders, not checks or how they're broken into parts. Asking it to `run check 3` means asking it to run a folder called `check3`, not to run 3a, b, and c together.
+**Note:** If you don't put in a range, Yuno looks for an exact match. Asking it to `run check 3` means asking it to run tests in a folder called `check3`, not to run 3a, b, and c together.
 
 If you want to run them all, use:
 
@@ -173,13 +173,16 @@ Or if you're lazy:
 
     yuno.py run check 3a-c
 
-Yuno always does its best to run no less than what you asked for, only skipping checks if they're specifically excluded by the range.
+Yuno always does its best to run no less than what you asked for, only skipping checks if they're specifically excluded by the range. A range endpoint without a letter will include that check and all its subparts. Any checks that fall inside the middle of the range are loaded fully, `#` to `#z`.
 
     # 4, 4a, 4b, ..., 9, ..., 9d, 9e (but not 9f)
     yuno.py run check 4-9e
 
     # 5b, 5c, ..., 6, 6a (but not 5 or 5a)
     yuno.py run check 5b-6a
+
+    # 5, 5a, ..., 10, ..., 10z
+    yuno.py run check 5-10
 
 ### By status
 

@@ -1,6 +1,6 @@
 BAD_PHASE_OR_CHECK = '''Arguments to phase/check must be of the form:
   6       (exact match; won't run 6a, 6b, etc)
-  6-10    (matches 6, 6a, 6b, 7, 8a, ..., 10)
+  6-10    (matches 6, 6a, 6b, 7, 8a, ..., 10z)
   6a-c    (matches 6a, 6b, 6c; short for 6a-6c)
   6b-19a  (matches 6b, 6c, ... 14, 15a, ..., 19, 19a)
 

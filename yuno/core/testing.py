@@ -39,10 +39,19 @@ def build_glob(phase=None, check=None):
 
 def build_regex(phase=None, check=None):
     def range_to_regex(range_string):
+        # Filter out the simple cases first
         if range_string == '*':
             return '.*'
+        # Matches: 3, 3a
+        elif re.match(r'^(\d+[a-z]?)$', range_string):
+            return range_string
+        # Converts: 3a-c -> 3[a-c]
+        elif re.match(r'^(\d+)([a-z]-[a-z])$', range_string):
+            return re.sub(r'^(\d+)([a-z]-[a-z])', r'\1[\2]', range_string)
 
+        # Matches: 2-3, 2-3a, 3a-4, 3a-3c
         range_bounds = re.match(r'(\d+)([a-z])?-(\d+)([a-z])?', range_string)
+
         start = range_bounds.group(1)
         first_letter = range_bounds.group(2)
 
@@ -362,9 +371,10 @@ class Suite(object):
             filename = self.filename
 
         try:
-            open(filename, 'w+').writelines(
-                [str(t) + '\n' for t in self.tests]
-            )
+            with open(filename, 'w+') as suite_file:
+                suite_file.writelines(
+                    [str(t) + '\n' for t in self.tests]
+                )
         except IOError:
             raise errors.SuiteSaveError(self.name, self.filename)
 

@@ -109,23 +109,28 @@ def _run_phase_and_check(options):
     phase = options.phase.strip() if options.phase else '*'
     check = options.check.strip() if options.check else '*'
     valid_arg = re.compile(r'^\d+[a-z]?(-\d+[a-z]?)?$|^\d+[a-z]-[a-z]$|^\*$')
-    valid_glob_range = re.compile(r'^\d+[a-z]?$|^\d-\d$|^\d+[a-z]-[a-z]$|^\*$')
-
-    # Convert the 6a-6z form to the 6a-z short form for globbing
-    phase = re.sub(r'^(\d+)([a-z])-\1([a-z])$', r'\1\2-\3', phase)
-    check = re.sub(r'^(\d+)([a-z])-\1([a-z])$', r'\1\2-\3', check)
+    send_to_globber = re.compile(
+        #  3, 12a      6a-c            6a-6c                 *
+        r'^\d+[a-z]?$|^\d+[a-z]-[a-z]$|^(\d+)[a-z]-\1[a-z]$|^\*$'
+    )
 
     # Keep the * option undocumented. It's a quirk and not particularly helpful.
     if not valid_arg.match(phase) or not valid_arg.match(check):
         raise core.errors.YunoError(text.BAD_PHASE_OR_CHECK)
 
-    # Strictly speaking, real globs allow only single-character ranges like
-    # '5-9'. To support more useful ranges like '5-20', branch off to search the
-    # repo with a regex filter if the glob expander can't handle what was given.
-    if not valid_glob_range.match(phase) or not valid_glob_range.match(check):
+    # Loading files by glob is faster, but the globber only takes single-digit
+    # or -character ranges and can't do optional sequences. Exact matches (6a)
+    # and ranges within a single check number (6a-6c, 6a-c) can be globbed;
+    # others like 5-7 (5[a-z]?|6[a-z]?|7[a-z]?) and 5b-6a (5[b-z]|6[a-a]) have
+    # to go through regex matching.
+    if not send_to_globber.match(phase) or not send_to_globber.match(check):
         regex = core.testing.build_regex(phase=phase, check=check)
         return _run_regex(options, regex)
     else:
+        # Convert the 6a-6z form to the 6a-z short form for globbing
+        phase = re.sub(r'^(\d+)([a-z])-\1([a-z])$', r'\1\2-\3', phase)
+        check = re.sub(r'^(\d+)([a-z])-\1([a-z])$', r'\1\2-\3', check)
+
         glob = core.testing.build_glob(phase=phase, check=check)
         return _run_tests(options, glob=glob)
 
