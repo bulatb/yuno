@@ -148,7 +148,7 @@ Every test with a Companion Cube:
 
 ### By phase or check
 
-Being a Compilers tool, Yuno gives special treatment to repositories laid out in phases and checks. The `phase` and `check` commands can be used separately, together, or not at all. The `<#>` may be a number, string, or dash-separated number range.
+Being a Compilers tool, Yuno gives special treatment to repositories laid out in phases and checks. The `phase` and `check` commands can be used separately, together, or not at all. Each one's `<#>` may be a number, a number and a letter, or dash-separated range. (More on that below.)
 
 Any test files inside matching folders or subfolders will be run.
 
@@ -156,7 +156,30 @@ Any test files inside matching folders or subfolders will be run.
     yuno.py run check 12
 
     # If check alone would be ambiguous
-    yuno.py run phase 2 check 5
+    yuno.py run phase 2 check 6a
+
+To support checks with multiple parts, ranges can slice on numbers and letters together. Each end may be one or more digits, optionally followed by a letter. For example, to run every test in every check between `check6b` and `check10` (inclusive):
+
+    # Runs 6b, 6c, 7, ... 9a, ..., 9z, ..., 10
+    yuno.py run check 6b-10
+
+**Note:** Yuno understands folders, not checks or how they're broken into parts. Asking it to `run check 3` means asking it to run a folder called `check3`, not to run 3a, b, and c together.
+
+If you want to run them all, use:
+
+    yuno.py run check 3a-3c
+
+Or if you're lazy:
+
+    yuno.py run check 3a-c
+
+Yuno always does its best to run no less than what you asked for, only skipping checks if they're specifically excluded by the range.
+
+    # 4, 4a, 4b, ..., 9, ..., 9d, 9e (but not 9f)
+    yuno.py run check 4-9e
+
+    # 5b, 5c, ..., 6, 6a (but not 5 or 5a)
+    yuno.py run check 5b-6a
 
 ### By status
 
@@ -288,7 +311,7 @@ To clean up your `passing` and `failing` lists:
 
   2. `--suites` - Also prune the suites in your main suite folder.
 
-  3. `--all` - Shorthand for `--last-run --suites`.
+  3. `--all` - Short for `--last-run --suites`.
 
 
 Customizing Yuno
