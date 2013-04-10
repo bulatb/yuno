@@ -37,6 +37,9 @@ def multiline_fill(placeholder, value, template):
     TODO: There might be a way to do this with format().
 
     """
+    if '\n' not in value and '\r' not in value:
+        return template.replace('{%s}' % placeholder, value)
+
     def value_padder(value):
         def padder(matchobj):
             # Leading whitespace includes the original newline

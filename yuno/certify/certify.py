@@ -81,3 +81,5 @@ def main(argv=sys.argv):
         command_handlers[options.command](options)
     except errors.YunoError as e:
         print e.for_console()
+    except KeyboardInterrupt:
+        print "Stopped."

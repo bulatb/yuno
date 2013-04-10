@@ -1,5 +1,6 @@
 import difflib
 import os
+import re
 import subprocess
 import sys
 
@@ -103,7 +104,6 @@ class AnswerGeneratingHarness(core.testing.Harness):
                 )
             )
 
-
             if self._confirm_overwrite():
                 print "++ Answer file updated."
                 self._generate_answer_file(test.answer.path, output)
@@ -115,7 +115,7 @@ class AnswerGeneratingHarness(core.testing.Harness):
         output = util.posix_newlines(output)
 
         print self._result_message.format(
-            test_path=test.source.path_to,
+            test_path=test.source.path_to or '[repo root]',
             test_name=test.source.filename,
             output=output
         )

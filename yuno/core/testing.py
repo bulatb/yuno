@@ -94,10 +94,9 @@ class TestComponent(object):
 class Test(object):
     def __init__(self, path):
         source_extension = re.escape(SOURCE_EXTENSION)
-        path = to_posix_path(path.strip())
+        path = re.sub(r'^\.{1,2}[/\\]', '', to_posix_path(path.strip()))
 
         path_to, filename = posixpath.split(path)
-        path_to = '.' if not path_to else path_to
         name = os.path.splitext(filename)[0]
 
         answer_filename = name + ANSWER_EXTENSION
@@ -217,7 +216,7 @@ class Harness(object):
         self.passed.append(test)
         self._report_result(
             self._success_message,
-            test_path=test.source.path_to,
+            test_path=test.source.path_to or '[repo root]',
             test_name=test.source.filename
         )
         self._pause('p')
@@ -225,7 +224,7 @@ class Harness(object):
 
     def test_failed(self, test, output, expected_output):
         fail_details = {
-            'test_path': test.source.path_to,
+            'test_path': test.source.path_to or '[repo root]',
             'test_name': test.source.filename
         }
 
@@ -244,7 +243,7 @@ class Harness(object):
         self.skipped.append(test)
         self._report_result(
             self._skip_message,
-            test_path=test.source.path_to,
+            test_path=test.source.path_to or '[repo root]',
             test_name=test.source.filename,
             reason=reason
         )
