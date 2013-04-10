@@ -314,4 +314,4 @@ def main(argv=sys.argv):
         print e.for_console()
 
     except KeyboardInterrupt:
-        print "Run stopped."
+        print "Run stopped. Results were not recorded."
