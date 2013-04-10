@@ -9,6 +9,7 @@ from yuno.core.config import config
 
 import cli
 import diff_routines
+import text
 
 
 def _build_regex_filter(regex):
@@ -107,17 +108,21 @@ def _run_phase_and_check(options):
     """
     phase = options.phase.strip() if options.phase else '*'
     check = options.check.strip() if options.check else '*'
-    invalid_glob_range = re.compile(r'\d{2,}-\d+|\d+-\d{2,}')
-    valid_arg = re.compile(r'^\d+(-\d+)?$|^\*$')
+    valid_arg = re.compile(r'^\d+[a-z]?(-\d+[a-z]?)?$|^\d+[a-z]-[a-z]$|^\*$')
+    valid_glob_range = re.compile(r'^\d+[a-z]?$|^\d-\d$|^\d+[a-z]-[a-z]$|^\*$')
+
+    # Convert the 6a-6z form to the 6a-z short form for globbing
+    phase = re.sub(r'^(\d+)([a-z])-\1([a-z])$', r'\1\2-\3', phase)
+    check = re.sub(r'^(\d+)([a-z])-\1([a-z])$', r'\1\2-\3', check)
 
     # Keep the * option undocumented. It's a quirk and not particularly helpful.
     if not valid_arg.match(phase) or not valid_arg.match(check):
-        raise core.errors.YunoError('Phase/check must be <#> or <from>-<to>.')
+        raise core.errors.YunoError(text.BAD_PHASE_OR_CHECK)
 
     # Strictly speaking, real globs allow only single-character ranges like
     # '5-9'. To support more useful ranges like '5-20', branch off to search the
     # repo with a regex filter if the glob expander can't handle what was given.
-    if invalid_glob_range.match(phase) or invalid_glob_range.match(check):
+    if not valid_glob_range.match(phase) or not valid_glob_range.match(check):
         regex = core.testing.build_regex(phase=phase, check=check)
         return _run_regex(options, regex)
     else:
@@ -299,11 +304,7 @@ def main(argv=sys.argv):
 
         commands_using_globs = (cli.RUN_GLOB, cli.RUN_FILES)
         if options.command in commands_using_globs and os.name == 'posix':
-            print "\nNOTE: Your shell may natively support globs. For " + \
-            "compatibility with Windows, Yuno needs to handle glob " + \
-            "expansion on its own. If they're not matching as " + \
-            "expected, try wrapping them in quotes or turning off " + \
-            "your glob expander."
+            print text.SHELL_GLOB_EXPANSION_WARNING
         # TODO: this.
         # if options.command == cli.RUN_SUITE:
         #     print "To see its contents, use:"

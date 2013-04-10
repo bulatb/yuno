@@ -22,7 +22,10 @@ MATCH_ALL_TESTS = '**/*' + SOURCE_EXTENSION
 
 def build_glob(phase=None, check=None):
     def to_glob_syntax(globlike):
-        return re.sub(r'(\d+-\d+)', r'[\1]', globlike)
+        glob = re.sub(r'(\d-\d)', r'[\1]', globlike)
+        glob = re.sub(r'^(\d+)([a-z]-[a-z])$', r'\1[\2]', glob)
+
+        return glob
 
     phase_part = 'phase*'
     check_part = 'check*'
@@ -31,7 +34,6 @@ def build_glob(phase=None, check=None):
         phase_part = 'phase' + to_glob_syntax(phase)
     if check:
         check_part = 'check' + to_glob_syntax(check)
-
     return posixpath.join(phase_part, check_part, "*" + SOURCE_EXTENSION)
 
 
@@ -40,14 +42,31 @@ def build_regex(phase=None, check=None):
         if range_string == '*':
             return '.*'
 
-        bounds = [int(n) for n in range_string.split('-')]
-        members = '|'.join([str(m) for m in range(bounds[0], bounds[1] + 1)])
-        return '({0})'.format(members)
+        range_bounds = re.match(r'(\d+)([a-z])?-(\d+)([a-z])?', range_string)
+        start = range_bounds.group(1)
+        first_letter = range_bounds.group(2)
+
+        end = range_bounds.group(3)
+        last_letter = range_bounds.group(4)
+
+        middle = range(int(start) + 1, int(end))
+
+        first_letter_pattern = '[%s-z]' % (first_letter or 'a')
+        # Things like 18a-19 should start matching at 18a, not 18.
+        first_letter_pattern += '?' if not first_letter else ''
+        last_letter_pattern = '[a-%s]?' % (last_letter or 'z')
+
+        patterns = []
+        patterns.append(start + first_letter_pattern)
+        patterns.extend([str(n) + '[a-z]?' for n in middle])
+        patterns.append(end + last_letter_pattern)
+
+        return '({0})'.format('|'.join(patterns))
 
     phase = range_to_regex(phase) if phase else r'\d+'
-    check = range_to_regex(check) if check else r'\d+'
+    check = range_to_regex(check) if check else r'\d+[a-z]?'
 
-    return re.compile('^/?phase{0}/check{1}(/.*)?$'.format(phase, check))
+    return re.compile('^/?phase{0}/check{1}/(.+)?$'.format(phase, check))
 
 
 class TestComponent(object):
@@ -442,6 +461,5 @@ def load_from_regex(compiled_pattern, test_class=Test):
     """
     def regex_filter(test_case):
         return compiled_pattern.match(test_case.source.path)
-
 
     return load_all(test_class=test_class, filter_fn=regex_filter)
