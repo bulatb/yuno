@@ -114,6 +114,11 @@ def _run_phase_and_check(options):
         r'^\d+[a-z]?$|^\d+[a-z]-[a-z]$|^(\d+)[a-z]-\1[a-z]$|^\*$'
     )
 
+    # Convert the 6a-6z form to the 6a-z short form for globbing. This also
+    # cuts out some unnecessary processing in regex mode, so win-win.
+    phase = re.sub(r'^(\d+)([a-z])-\1([a-z])$', r'\1\2-\3', phase)
+    check = re.sub(r'^(\d+)([a-z])-\1([a-z])$', r'\1\2-\3', check)
+
     # Keep the * option undocumented. It's a quirk and not particularly helpful.
     if not valid_arg.match(phase) or not valid_arg.match(check):
         raise core.errors.YunoError(text.BAD_PHASE_OR_CHECK)
@@ -124,13 +129,10 @@ def _run_phase_and_check(options):
     # others like 5-7 (5[a-z]?|6[a-z]?|7[a-z]?) and 5b-6a (5[b-z]|6[a-a]) have
     # to go through regex matching.
     if not send_to_globber.match(phase) or not send_to_globber.match(check):
-        regex = core.testing.build_regex(phase=phase, check=check)
-        return _run_regex(options, regex)
+        search_path = core.testing.build_regex(phase=phase, check=check)
+        test_set = core.testing.load_by_walking(search_path)
+        return _run_tests(options, test_set=test_set)
     else:
-        # Convert the 6a-6z form to the 6a-z short form for globbing
-        phase = re.sub(r'^(\d+)([a-z])-\1([a-z])$', r'\1\2-\3', phase)
-        check = re.sub(r'^(\d+)([a-z])-\1([a-z])$', r'\1\2-\3', check)
-
         glob = core.testing.build_glob(phase=phase, check=check)
         return _run_tests(options, glob=glob)
 

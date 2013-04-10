@@ -52,13 +52,13 @@ def build_regex(phase=None, check=None):
         # Matches: 2-3, 2-3a, 3a-4, 3a-3c
         range_bounds = re.match(r'(\d+)([a-z])?-(\d+)([a-z])?', range_string)
 
-        start = range_bounds.group(1)
+        left_bound = range_bounds.group(1)
         first_letter = range_bounds.group(2)
 
-        end = range_bounds.group(3)
+        right_bound = range_bounds.group(3)
         last_letter = range_bounds.group(4)
 
-        middle = range(int(start) + 1, int(end))
+        middle = range(int(left_bound) + 1, int(right_bound))
 
         first_letter_pattern = '[%s-z]' % (first_letter or 'a')
         # Things like 18a-19 should start matching at 18a, not 18.
@@ -66,16 +66,17 @@ def build_regex(phase=None, check=None):
         last_letter_pattern = '[a-%s]?' % (last_letter or 'z')
 
         patterns = []
-        patterns.append(start + first_letter_pattern)
+        patterns.append(left_bound + first_letter_pattern)
         patterns.extend([str(n) + '[a-z]?' for n in middle])
-        patterns.append(end + last_letter_pattern)
+        patterns.append(right_bound + last_letter_pattern)
 
         return '({0})'.format('|'.join(patterns))
 
     phase = range_to_regex(phase) if phase else r'\d+'
     check = range_to_regex(check) if check else r'\d+[a-z]?'
 
-    return re.compile('^/?phase{0}/check{1}/(.+)?$'.format(phase, check))
+    return ['^phase%s$' % phase, '^check%s$' % check]
+    # return re.compile('^/?phase{0}/check{1}/(.+)?$'.format(phase, check))
 
 
 class TestComponent(object):
@@ -463,12 +464,62 @@ def load_all(test_class=Test, filter_fn=None):
 
 def load_from_regex(compiled_pattern, test_class=Test):
     """Returns all tests in the repository whose source file's full path
-    matches [compiled_pattern] as a list of [test_class] objects. For large
-    repositories or pathological globs, this may be faster than
-    `load_from_glob`.
+    matches [compiled_pattern] as a list of [test_class] objects. This loader
+    is probably the slowest in the average case.
 
     """
     def regex_filter(test_case):
         return compiled_pattern.match(test_case.source.path)
 
     return load_all(test_class=test_class, filter_fn=regex_filter)
+
+
+def load_by_walking(search_path, test_class=Test):
+    """Searches the repo for tests along [search_path], level by level,
+    regex-matching folder names and discarding any trees that fail. Prefer this
+    over load_regex() for paths whose patterns can be cleanly separated into
+    tokens and definitely won't need any backtracking.
+
+    [search_path] should be a list of strings (not compiled regexes) containing
+    patterns to match against subfolder names, one for each level of depth.
+    Matching will continue til a pattern fails or that depth has been reach, at
+    which point any tests found in the bottom folder are returned.
+
+    For example, ['phase(1|2|12)', 'check.*'] will match:
+        phase1/check2/
+        phase12/check-xyz/
+    but won't match:
+        phase1/check2/check3/
+
+    """
+    isfile, isdir = (os.path.isfile, os.path.isdir)
+
+    def find_tests(folder):
+        def is_test(filename):
+            is_file = isfile(os.path.join(folder, filename))
+            return is_file and filename.endswith(SOURCE_EXTENSION)
+
+        tests = []
+        for entry in os.listdir(folder):
+            if is_test(entry):
+                tests.append(test_class(posixpath.join(folder, entry)))
+        return tests
+
+    def search_folder(folder, search_path):
+        tests = []
+
+        if len(search_path) == 0:
+            return find_tests(folder)
+        else:
+            folder_contents = os.listdir(folder)
+
+            for item in folder_contents:
+                item_path = posixpath.join(folder, item)
+                if isdir(item_path) and re.match(search_path[0], item):
+                    tests += search_folder(
+                        posixpath.join(folder, item), search_path[1:]
+                    )
+            return tests
+
+    with working_dir(config.test_folder):
+        return search_folder('.', search_path)
