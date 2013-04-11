@@ -34,8 +34,7 @@ class SuiteSaveError(YunoError):
 
 
 class EmptyTestSet(YunoError):
-    def __init__(self):
-        message = "No tests to run."
+    def __init__(self, message='No tests to run'):
         super(EmptyTestSet, self).__init__(message)
 
 
@@ -56,7 +55,7 @@ class ConfigParseError(YunoError):
 class UndefinedConfigKey(YunoError):
     def __init__(self, key_name):
         super(UndefinedConfigKey, self).__init__(
-            "Key {} does not exist in the settings.".format(key_name)
+            'Key {} does not exist in the settings.'.format(key_name)
         )
 
 

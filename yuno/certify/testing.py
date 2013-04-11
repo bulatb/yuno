@@ -128,6 +128,10 @@ class AnswerGeneratingHarness(core.testing.Harness):
         print self._warn_message.format(message=message)
 
 
-    def run_tests(self, test_set):
-        for test in test_set:
-            test.run_in_harness(self)
+    def run_set(self, test_set):
+        if len(test_set) == 0:
+            raise errors.EmptyTestSet('No tests to certify')
+
+        with util.working_dir(config.test_folder):
+            for test in test_set:
+                test.run_in_harness(self)
