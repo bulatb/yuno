@@ -11,7 +11,7 @@ class OverloadedArg(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
         command = None
 
-        if values[0] == CERTIFY_FILES:
+        if values[0] == CERTIFY_FILES and len(values) == 2:
             command = CERTIFY_FILES
             setattr(namespace, 'glob', values[1])
         elif values[0] == CERTIFY_PIPE:

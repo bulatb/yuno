@@ -72,6 +72,10 @@ def _certify_pipe(options):
 def main(argv=sys.argv):
     options, parser = cli.get_cli_args(argv)
 
+    if options.command is None:
+        parser.print_help()
+        sys.exit(2)
+
     command_handlers = {
         cli.CERTIFY_FILES: _certify_files,
         cli.CERTIFY_PIPE: _certify_pipe

@@ -109,6 +109,10 @@ def _show_last():
 def main(argv=sys.argv):
     options, parser = cli.get_cli_args(argv)
 
+    if options.what is None:
+        parser.print_help()
+        sys.exit(2)
+
     command_handlers = {
         cli.SHOW_FAILED: _show_failed,
         cli.SHOW_FAILING: _show_failing,
