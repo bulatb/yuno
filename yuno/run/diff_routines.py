@@ -13,8 +13,8 @@ def unified(expected, actual):
     """
     return ''.join(
         difflib.unified_diff(
-            expected.splitlines(True),
-            actual.splitlines(True),
+            posix_newlines(expected).splitlines(True),
+            posix_newlines(actual).splitlines(True),
             fromfile='expected',
             tofile='actual'
         )
@@ -27,7 +27,7 @@ def context(expected, actual):
     """
     return ''.join(
         difflib.ndiff(
-            expected.splitlines(True),
-            actual.splitlines(True)
+            posix_newlines(expected).splitlines(True),
+            posix_newlines(actual).splitlines(True)
         )
     )
