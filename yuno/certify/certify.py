@@ -57,7 +57,8 @@ def _certify_pipe(options):
 
     tests = core.testing.load_from_file(
         sys.stdin,
-        line_filter=util.strip_line_labels
+        line_filter=util.strip_line_labels,
+        test_class=testing.NaiveTest
     )
     _reset_stdin()
 
