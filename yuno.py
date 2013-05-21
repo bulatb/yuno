@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import os
 import sys
@@ -16,8 +16,8 @@ def main(argv=None):
         config.load_default()
         options, parser = cli.get_cli_args(argv or sys.argv[1:])
         program = __import__(
-            'yuno.%s.%s' % (options.command, options.command),
-            fromlist=['yuno.%s' % options.command]
+            'yuno.{command}.{command}'.format(command=options.command),
+            fromlist=['yuno.' + options.command]
         )
 
         program.main(options.tail)

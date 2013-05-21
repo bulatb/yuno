@@ -27,8 +27,8 @@ def load_json(filename):
         config_file = open(filename)
         settings = json.loads(decomment_json(config_file.read()))
 
-        for k, v in settings.iteritems():
-            setattr(config, k, v)
+        for setting, value in settings.items():
+            setattr(config, setting, value)
 
     except ValueError:
         # The message they'll get here is singularly useless. Herp derp, there's
