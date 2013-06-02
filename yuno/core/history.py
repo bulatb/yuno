@@ -17,7 +17,7 @@ class RunRecord(object):
     }
 
     # _line_types + _line_labels = fake bimap
-    _line_labels = {v: k for k, v in _line_types.iteritems()}
+    _line_labels = {v: k for k, v in _line_types.items()}
     _header_line = '= Last run [%s] (-%d +%d p%d f%d s%d w%d)\n\n'
     time_format = '%I:%M %p %b %d'
 

@@ -1,3 +1,10 @@
+## Python artifacts
+
 *.pyc
+__pycache__/
+
+## Editor metadata
+
 *.sublime-project
 *.sublime-workspace
+

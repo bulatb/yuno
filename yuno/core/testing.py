@@ -6,12 +6,12 @@ import os
 import re
 import posixpath
 import subprocess
+import locale
 
 from yuno.core.config import config
-from yuno.core import history
+from yuno.core import errors, history
 
-import errors
-from util import working_dir, posix_newlines, to_posix_path, multiline_fill
+from .util import working_dir, posix_newlines, to_posix_path, multiline_fill
 
 
 SOURCE_EXTENSION = config.source_extension
@@ -160,7 +160,10 @@ class Test(object):
             )
 
         try:
-            expected_output = open(self.answer.path, 'rU').read()
+            answer_file = open(self.answer.path)
+            expected_output = answer_file.read()
+            output = output.decode('utf-8')
+
             if not self.passes(expected_output, output):
                 harness.test_failed(self, output, expected_output)
             else:
@@ -210,16 +213,16 @@ class Harness(object):
             with open(path) as template:
                 return template.read()
         except IOError:
-            print "WARN: Could not read template: {}".format(path)
+            print("WARN: Could not read template: " + path)
             return default
 
 
     def _report_result(self, message_template, **kwargs):
         message = message_template
-        for (placeholder, value) in kwargs.iteritems():
+        for (placeholder, value) in kwargs.items():
             message = multiline_fill(placeholder, value, message)
 
-        print message
+        print(message)
 
 
     def test_passed(self, test, output):
@@ -295,7 +298,7 @@ class Harness(object):
                 self._previously_failing = set([f.strip() for f in failing])
                 self._previously_passing = set([p.strip() for p in passing])
             except (IOError, OSError):
-                print "WARN: Failed to load history. Results won't be saved."
+                print("WARN: Failed to load history. Results won't be saved.")
                 self._history_off = True
             finally:
                 failing.close()

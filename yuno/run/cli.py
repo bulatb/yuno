@@ -1,7 +1,6 @@
 import argparse
-import help
 
-import diff_routines
+from . import diff_routines, help
 
 
 RUN_ALL = 'all'
@@ -34,23 +33,10 @@ class OverloadedArg(argparse.Action):
         if num_values == 1:
             if values[0] in ONE_ARG_COMMANDS:
                 command = values[0]
-            # if values[0] == RUN_ALL:
-            #     command = RUN_ALL
-            # elif values[0] == RUN_FAILED:
-            #     command = RUN_FAILED
-            # elif values[0] == RUN_FAILING:
-            #     command = RUN_FAILING
-            # elif values[0] == RUN_PASSED:
-            #     command = RUN_PASSED
-            # elif values[0] == RUN_PASSING:
-            #     command = RUN_PASSING
-            # elif values[0] == RUN_PIPE:
-            #     command = RUN_PIPE
             else: # it's a glob
                 command = RUN_GLOB
                 setattr(namespace, 'glob', values[0])
         elif num_values == 2:
-
             if values[0] == RUN_PHASE:
                 command = RUN_PHASE
                 setattr(namespace, 'phase', values[1])
