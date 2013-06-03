@@ -1,0 +1,9 @@
+{
+    "data_folder": "data",
+    "check_interval": 2,
+
+    "test_folder": "../assembly",
+    "compiler_invocation":
+        "cc {testcase} ../input.c ../output.s && ./a.out",
+    "source_extension": ".s"
+}

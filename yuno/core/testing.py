@@ -162,7 +162,10 @@ class Test(object):
         try:
             answer_file = open(self.answer.path)
             expected_output = answer_file.read()
-            output = output.decode('utf-8')
+            try:
+                output = output.decode('utf-8')
+            except AttributeError:
+                pass
 
             if not self.passes(expected_output, output):
                 harness.test_failed(self, output, expected_output)
@@ -453,7 +456,7 @@ def load_all(test_class=Test, filter_fn=None):
     with working_dir(config.test_folder):
         for root, dirs, files in os.walk('.'):
             for filename in files:
-                if filename.endswith(SOURCE_EXTENSION):
+                if filename.endswith(config.source_extension):
                     tests.append(
                         # [2:] strips the ./ added by os.walk()
                         test_class(posixpath.join(root, filename)[2:])
