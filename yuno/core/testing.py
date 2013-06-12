@@ -290,7 +290,7 @@ class Harness(object):
         self._previously_failing = set()
         self._previously_passing = set()
 
-        with working_dir('./data'):
+        with working_dir(config.data_folder):
             try:
                 read_or_create = os.O_RDONLY | os.O_CREAT
                 failing = os.fdopen(os.open('failing.txt', read_or_create))
@@ -325,7 +325,7 @@ class Harness(object):
         now_passing = self._previously_passing.union(passed).difference(failed)
         now_failing = self._previously_failing.union(failed).difference(passed)
 
-        with working_dir('./data'):
+        with working_dir(config.data_folder):
             with open('passing.txt', 'w+') as passing:
                 passing.writelines([str(test) + '\n' for test in now_passing])
 

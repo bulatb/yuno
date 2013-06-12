@@ -1,8 +1,10 @@
+import posixpath
 import re
 
 from datetime import datetime
 
 from yuno.core import errors, util
+from yuno.core.config import config
 
 
 class RunRecord(object):
@@ -23,7 +25,8 @@ class RunRecord(object):
 
     @classmethod
     def from_last_run(cls):
-        return RunRecord.from_file('data/last-run.txt')
+        return RunRecord.from_file(
+            posixpath.join(config.data_folder, 'last-run.txt'))
 
 
     @classmethod
@@ -54,7 +57,10 @@ class RunRecord(object):
         self.when = datetime.now() if when is None else when
 
 
-    def save(self, filename='data/last-run.txt'):
+    def save(self, filename=None):
+        if filename is None:
+            filename = posixpath.join(config.data_folder, 'last-run.txt')
+
         def save_field(field_name, fp):
             tests = self.__dict__[field_name]
             header = '%d %s\n' % (len(tests), field_name)
