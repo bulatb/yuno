@@ -1,5 +1,6 @@
 import os
 import posixpath
+import shutil
 import subprocess
 import sys
 import time
@@ -9,6 +10,16 @@ from yuno.core import config, testing
 from yuno.core.config import config as settings
 
 from . import cli
+
+
+class SteelTest(testing.Test):
+    def __init__(self, path):
+        super(SteelTest, self).__init__(path)
+
+
+    def run_in_harness(self, harness):
+        shutil.copyfile(self.source.path, self.source.path + '.most-recent')
+        super(SteelTest, self).run_in_harness(harness)
 
 
 def _finish_current_run():
@@ -67,8 +78,9 @@ def _listen_for_files():
 
             print("Detected new tests.\n", "=" * 80, sep="\n")
 
+            run.TEST_CLASS = SteelTest
             run.main(argv=['all'])
-            # _delete_assembly()
+            _delete_assembly()
 
             print("\n", "=" * 80, "Done.\n", sep="\n")
             print("Waiting to receive tests. PID: " + str(os.getpid()))
