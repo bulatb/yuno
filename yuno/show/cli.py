@@ -1,6 +1,7 @@
 import argparse
 
-import help
+from . import help
+
 
 SHOW_FAILED = 'failed'
 SHOW_FAILING = 'failing'

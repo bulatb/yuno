@@ -4,7 +4,7 @@ import posixpath
 from yuno.core import errors, history, testing
 from yuno.core.config import config
 
-import cli
+from . import cli
 
 
 def _remove_deleted_tests(suite, available_tests):
@@ -58,9 +58,9 @@ def _prune_suites(available_tests):
 
 
 def _print_interrupt_warning():
-    print "WARN: Pruning interrupted."
-    print "WARN: Your history may now be inconsistent, but that's ok."
-    print "      To fix it, run some tests or run yuno prune again."
+    print("WARN: Pruning interrupted.")
+    print("WARN: Your history may now be inconsistent, but that's ok.")
+    print("      To fix it, run some tests or run yuno prune again.")
 
 
 def main(argv):
@@ -74,27 +74,27 @@ def main(argv):
     valid_failing = _remove_deleted_tests(listed_failing, valid_paths)
 
     try:
-        print "Removing deleted tests from your history...\n"
+        print("Removing deleted tests from your history...\n")
 
         valid_passing[0].save()
-        print "Pruned %d bad paths from passing test list." % valid_passing[1]
+        print("Pruned %d bad paths from passing test list." % valid_passing[1])
 
         valid_failing[0].save()
-        print "Pruned %d bad paths from failing test list." % valid_failing[1]
+        print("Pruned %d bad paths from failing test list." % valid_failing[1])
 
         if options.prune_last or options.prune_all:
             pruned_from_log = _prune_last_run(valid_paths)
-            print "\nPruned %d items from the run log." % pruned_from_log
+            print("\nPruned %d items from the run log." % pruned_from_log)
 
         if options.prune_suites or options.prune_all:
-            print "\n",
+            print("")
             for suite, num_removed in _prune_suites(valid_paths):
-                print "Pruned %d bad paths from suite %s (%s)." % (
+                print("Pruned %d bad paths from suite %s (%s)." % (
                     num_removed, suite.name, suite.filename
-                )
+                ))
 
     except errors.YunoError as e:
-        print e.for_console()
+        print(e.for_console())
         _print_interrupt_warning()
 
     except KeyboardInterrupt:
@@ -102,5 +102,5 @@ def main(argv):
 
     except BaseException:
         _print_interrupt_warning()
-        print "\nReason below:" + ('-' * 80)
+        print("\nReason below:" + ('-' * 80))
         raise
