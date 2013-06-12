@@ -61,14 +61,10 @@ class AssemblyGenerator(core.testing.Harness):
 
     def test_passed(Self, test, output):
         filename = path_from(test.source.path_to, test.source.name) + '.s'
-        # filename = filename.replace('/', '_')
-        saved_output_filename = filename + '.most-recent'
 
         try:
             shutil.copyfile(config.compiler_output_file,
                 path_from(config.assembly_output_folder, filename))
-            shutil.copyfile(config.compiler_output_file,
-                path_from(config.assembly_output_folder, saved_output_filename))
             print("DONE: " + filename)
         except OSError as e:
             print(e)
