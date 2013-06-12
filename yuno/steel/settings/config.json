@@ -1,9 +1,38 @@
-{
-    "data_folder": "data",
-    "check_interval": 2,
+// Module-specific settings, loaded and used only when Steel is run. The values
+// set here will override those of any key with the same name in any other file.
+//
+// Yuno's main config file is in <yuno root>/settings.
+// -----------------------------------------------------------------------------
 
+{
+    // How often Steel checks for new test files in the assembly folder, in
+    // seconds.
+    //
+    "check_interval": 5,
+
+    // -------------------------------------------------------------------------
+    // Override values from the main config file.
+    // -------------------------------------------------------------------------
+
+    // Using a different path to avoid confusing tests from Project 1 and
+    // Project 2. If not absolute, this is relative to Yuno's root folder.
+    //
     "test_folder": "../assembly",
-    "compiler_invocation":
-        "cc {testcase} ../input.c ../output.s && ./a.out",
+
+    // Allows Steel and the core to use separate data folders. This is used
+    // to point them at the *same* path, but with two different names, as
+    // seen from two ends of a remote-mount. If correctly set, data from Yuno
+    // on ieng9 can then be read by another instance of Yuno, on a dev machine,
+    // with its own data_folder value that points to this path from its end.
+    //
+    // The value here is the server-side name, relative to the Yuno root on
+    // ieng9 (if not absolute).
+    //
+    "data_folder": "data",
+
+    "compiler_invocation": "cc {testcase} ../input.c ../output.s && ./a.out",
+
+    // Sparc assembly uses a .s extension.
+    //
     "source_extension": ".s"
 }
