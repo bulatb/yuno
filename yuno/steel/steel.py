@@ -92,9 +92,14 @@ def main(argv=sys.argv):
     options, parser = cli.get_cli_args(argv)
     config.load_json('yuno/steel/settings/config.json')
 
-    if options.finish:
-        _finish_current_run()
-    elif options.kill_running:
-        _kill_running()
-    else:
-        _listen_for_files()
+    try:
+        if options.finish:
+            _finish_current_run()
+        elif options.kill_running:
+            _kill_running()
+        else:
+            _listen_for_files()
+    except KeyboardInterrupt:
+        print("Steel stopped. Cleaning up...")
+        _delete_assembly()
+        print("Done.")
