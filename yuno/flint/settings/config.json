@@ -1,4 +1,18 @@
+// Module-specific settings, loaded and used only by Flint. Each value set here
+// overrides the value with the same name in the default settings.
+//
+// Yuno's main config file is in <yuno root>/settings.
+// -----------------------------------------------------------------------------
+
 {
+    // The test repo for Project 2.
+    //
+    "test_folder": "../../testcases",
+
+    // TODO: remove this?
+    //
+    "data_folder": "Q:\\p2tests\\yuno\\data",
+
     // When your compiler generates assembly from a test case, the file it
     // generates will be moved to this folder and renamed to match the name
     // and path of the test case that produced it.
@@ -8,13 +22,15 @@
     //
     // If not absolute, this path is relative to the test folder.
     //
-    "assembly_output_folder": "Q:/p2tests/assembly",
+    "assembly_output_folder": "Q:\\p2tests\\assembly",
 
-    // The assembly file that your compiler generates when fed a test case.
-    // This should be something like /your/project/home/rc.s.
+    // Path to the assembly file that your compiler generates when fed a test
+    // case. This should be something like /your/project/rc.s.
     //
     // If not absolute, this path is relative to the test folder.
     //
     "compiler_output_file": "rc.s"
-    // "data_folder": "Q:\\p2tests\\yuno\\data"
+
+
+
 }
