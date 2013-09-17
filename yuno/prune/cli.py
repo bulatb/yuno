@@ -2,7 +2,7 @@ import argparse
 
 from yuno.core.config import config
 
-import help
+from . import help
 
 
 def build_arg_parser():

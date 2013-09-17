@@ -6,12 +6,12 @@ import os
 import re
 import posixpath
 import subprocess
+import locale
 
 from yuno.core.config import config
-from yuno.core import history
+from yuno.core import errors, history
 
-import errors
-from util import working_dir, posix_newlines, to_posix_path, multiline_fill
+from .util import working_dir, posix_newlines, to_posix_path, multiline_fill
 
 
 SOURCE_EXTENSION = config.source_extension
@@ -160,7 +160,13 @@ class Test(object):
             )
 
         try:
-            expected_output = open(self.answer.path, 'rU').read()
+            answer_file = open(self.answer.path)
+            expected_output = answer_file.read()
+            try:
+                output = output.decode('utf-8')
+            except AttributeError:
+                pass
+
             if not self.passes(expected_output, output):
                 harness.test_failed(self, output, expected_output)
             else:
@@ -210,16 +216,16 @@ class Harness(object):
             with open(path) as template:
                 return template.read()
         except IOError:
-            print "WARN: Could not read template: {}".format(path)
+            print("WARN: Could not read template: " + path)
             return default
 
 
     def _report_result(self, message_template, **kwargs):
         message = message_template
-        for (placeholder, value) in kwargs.iteritems():
+        for (placeholder, value) in kwargs.items():
             message = multiline_fill(placeholder, value, message)
 
-        print message
+        print(message)
 
 
     def test_passed(self, test, output):
@@ -287,7 +293,7 @@ class Harness(object):
         self._previously_failing = set()
         self._previously_passing = set()
 
-        with working_dir('./data'):
+        with working_dir(config.data_folder):
             try:
                 read_or_create = os.O_RDONLY | os.O_CREAT
                 failing = os.fdopen(os.open('failing.txt', read_or_create))
@@ -295,7 +301,7 @@ class Harness(object):
                 self._previously_failing = set([f.strip() for f in failing])
                 self._previously_passing = set([p.strip() for p in passing])
             except (IOError, OSError):
-                print "WARN: Failed to load history. Results won't be saved."
+                print("WARN: Failed to load history. Results won't be saved.")
                 self._history_off = True
             finally:
                 failing.close()
@@ -322,7 +328,7 @@ class Harness(object):
         now_passing = self._previously_passing.union(passed).difference(failed)
         now_failing = self._previously_failing.union(failed).difference(passed)
 
-        with working_dir('./data'):
+        with working_dir(config.data_folder):
             with open('passing.txt', 'w+') as passing:
                 passing.writelines([str(test) + '\n' for test in now_passing])
 
@@ -450,7 +456,7 @@ def load_all(test_class=Test, filter_fn=None):
     with working_dir(config.test_folder):
         for root, dirs, files in os.walk('.'):
             for filename in files:
-                if filename.endswith(SOURCE_EXTENSION):
+                if filename.endswith(config.source_extension):
                     tests.append(
                         # [2:] strips the ./ added by os.walk()
                         test_class(posixpath.join(root, filename)[2:])
