@@ -26,6 +26,8 @@
     //
     "test_folder": "../testcases",
 
+    "data_folder": "data",
+
     // When loading named test suites, these folders will be checked in order
     // (left to right) until a matching suite is found. Suites created with
     // yuno run ... --save will go into the leftmost folder only.
