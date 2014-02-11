@@ -272,9 +272,9 @@ def _display_results(harness):
 
 
 def main(argv=sys.argv):
-    options, parser = cli.get_cli_args(argv)
+    args, parser = cli.get_cli_args(argv)
 
-    if options.command is None:
+    if args.command is None:
         parser.print_help()
         sys.exit(2)
 
@@ -294,11 +294,11 @@ def main(argv=sys.argv):
     }
 
     try:
-        harness, test_set = command_handlers[options.command](options)
+        harness, test_set = command_handlers[args.command](args)
         _display_results(harness)
 
-        if options.save_as:
-            _save_suite(options.save_as, test_set, overwrite=options.overwrite)
+        if args.save_as:
+            _save_suite(args.save_as, test_set, overwrite=args.overwrite)
 
     except core.errors.SuiteLoadError as e:
         print(e.for_console())
@@ -308,17 +308,17 @@ def main(argv=sys.argv):
     except core.errors.EmptyTestSet as e:
         print(e.for_console())
 
-        if options.command == cli.RUN_GLOB:
+        if args.command == cli.RUN_GLOB:
             print("To run specific tests, use:")
             print("    yuno.py run files path/to/test*.rc")
 
         commands_using_globs = (cli.RUN_GLOB, cli.RUN_FILES)
-        if options.command in commands_using_globs and os.name == 'posix':
+        if args.command in commands_using_globs and os.name == 'posix':
             print(text.SHELL_GLOB_EXPANSION_WARNING)
         # TODO: this.
-        # if options.command == cli.RUN_SUITE:
+        # if args.command == cli.RUN_SUITE:
         #     print("To see its contents, use:")
-        #     print("    yuno.py show suite {}".format(options.suite))
+        #     print("    yuno.py show suite {}".format(args.suite))
 
     except core.errors.YunoError as e:
         print(e.for_console())

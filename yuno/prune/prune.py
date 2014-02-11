@@ -4,7 +4,7 @@ import posixpath
 from yuno.core import errors, history, testing
 from yuno.core.config import config
 
-from . import cli
+from . import cli, text
 
 
 def _remove_deleted_tests(suite, available_tests):
@@ -57,14 +57,8 @@ def _prune_suites(available_tests):
     return results
 
 
-def _print_interrupt_warning():
-    print("WARN: Pruning interrupted.")
-    print("WARN: Your history may now be inconsistent, but that's ok.")
-    print("      To fix it, run some tests or run yuno prune again.")
-
-
 def main(argv):
-    options, parser = cli.get_cli_args(argv)
+    args, parser = cli.get_cli_args(argv)
 
     valid_paths = set([test.source.path for test in testing.load_all()])
     listed_passing = testing.Suite.from_file('data/passing.txt')
@@ -82,11 +76,11 @@ def main(argv):
         valid_failing[0].save()
         print("Pruned %d bad paths from failing test list." % valid_failing[1])
 
-        if options.prune_last or options.prune_all:
+        if args.prune_last or args.prune_all:
             pruned_from_log = _prune_last_run(valid_paths)
             print("\nPruned %d items from the run log." % pruned_from_log)
 
-        if options.prune_suites or options.prune_all:
+        if args.prune_suites or args.prune_all:
             print("")
             for suite, num_removed in _prune_suites(valid_paths):
                 print("Pruned %d bad paths from suite %s (%s)." % (
@@ -95,12 +89,12 @@ def main(argv):
 
     except errors.YunoError as e:
         print(e.for_console())
-        _print_interrupt_warning()
+        print(text.PRUNE_INTERRUPTED)
 
     except KeyboardInterrupt:
-        _print_interrupt_warning()
+        print(text.PRUNE_INTERRUPTED)
 
     except BaseException:
-        _print_interrupt_warning()
+        print(text.PRUNE_INTERRUPTED)
         print("\nReason below:" + ('-' * 80))
         raise
