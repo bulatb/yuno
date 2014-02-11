@@ -7,8 +7,8 @@ def to_posix_path(path):
     return posixpath.join(*path.split(os.sep))
 
 
-def posix_newlines(string):
-    return string.replace('\r\n', '\n')
+def posix_newlines(text):
+    return text.replace('\r\n', '\n')
 
 
 def multiline_fill(placeholder, value, template):

@@ -5,7 +5,7 @@ from yuno import core
 from yuno.core import errors, testing, util
 from yuno.core.config import config
 
-import cli, testing
+from . import cli, testing
 
 
 def _reset_stdin():
@@ -23,7 +23,7 @@ def _confirm_pipe():
     if sys.stdin.readline().strip() == 'pipe':
         return True
     else:
-        print """
+        print("""
         Detected pipe to `certify files`. If you're trying to pipe test cases,
         use `certify -`.
 
@@ -31,7 +31,7 @@ def _confirm_pipe():
         prompts, which can damage the test repo if it's not what you intended.
         If you just want all your cases certified, try `--yes --overwrite`. If
         you really want to drive the program through a pipe, make sure the first
-        line of your input stream is "pipe" (no quotes, ending in a \\n)."""
+        line of your input stream is "pipe" (no quotes, ending in a \\n).""")
 
         return False
 
@@ -40,7 +40,7 @@ def _certify_files(options):
     if not sys.stdin.isatty() and not _confirm_pipe():
         return
 
-    print "Generating answer files for " + options.glob
+    print("Generating answer files for " + options.glob)
 
     glob = options.glob.strip()
     harness = testing.AnswerGeneratingHarness(
@@ -53,7 +53,7 @@ def _certify_files(options):
 
 
 def _certify_pipe(options):
-    print "Generating answer files for piped-in tests"
+    print("Generating answer files for piped-in tests")
 
     tests = core.testing.load_from_file(
         sys.stdin,
@@ -85,6 +85,6 @@ def main(argv=sys.argv):
     try:
         command_handlers[options.command](options)
     except errors.YunoError as e:
-        print e.for_console()
+        print(e.for_console())
     except KeyboardInterrupt:
-        print "Stopped."
+        print("Stopped.")
