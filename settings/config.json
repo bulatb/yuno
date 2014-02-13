@@ -20,12 +20,14 @@
 
 
 {
-    // The path to the top-level folder that contains the test cases, relative
+    // Path to the top-level folder that contains the test cases, relative
     // to yuno.py. If you followed the setup instructions exactly, the default
     // here is correct.
     //
     "test_folder": "../testcases",
 
+    // Path to the data folder, relative to yuno.py. Yuno keeps its history
+    // files here.
     "data_folder": "data",
 
     // When loading named test suites, these folders will be checked in order

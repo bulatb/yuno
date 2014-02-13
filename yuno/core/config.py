@@ -25,23 +25,29 @@ def load_json(filename):
     """
     try:
         config_file = open(filename)
-        settings = json.loads(decomment_json(config_file.read()))
 
-        for setting, value in settings.items():
-            setattr(config, setting, value)
+        settings = json.loads(decomment_json(config_file.read()))
+        set_from_dict(settings)
+
+        config_file.close()
 
     except ValueError:
-        # The message they'll get here is singularly useless. Herp derp, there's
-        # an error somewhere in your file. Good luck!
         raise ConfigParseError(filename)
     except IOError:
         raise ConfigLoadError(filename)
-    finally:
-        config_file.close()
 
 
 def load_default():
     load_json('settings/config.json')
+
+
+def set_from_dict(dict_):
+    for key, value in dict_.items():
+        update(key, value)
+
+
+def update(key, value):
+    setattr(config, key, value)
 
 
 # Run this out here so the first module to `import config` creates the real

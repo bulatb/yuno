@@ -5,7 +5,7 @@ from yuno import core
 from yuno.core import errors, testing, util
 from yuno.core.config import config
 
-from . import cli, testing
+from . import cli, testing, text
 
 
 def _reset_stdin():
@@ -23,16 +23,7 @@ def _confirm_pipe():
     if sys.stdin.readline().strip() == 'pipe':
         return True
     else:
-        print("""
-        Detected pipe to `certify files`. If you're trying to pipe test cases,
-        use `certify -`.
-
-        Streams piped to `certify files` will be understood as answers for the
-        prompts, which can damage the test repo if it's not what you intended.
-        If you just want all your cases certified, try `--yes --overwrite`. If
-        you really want to drive the program through a pipe, make sure the first
-        line of your input stream is "pipe" (no quotes, ending in a \\n).""")
-
+        print(text.UNEXPECTED_PIPE)
         return False
 
 
@@ -71,9 +62,9 @@ def _certify_pipe(options):
 
 
 def main(argv=sys.argv):
-    options, parser = cli.get_cli_args(argv)
+    args, parser = cli.get_cli_args(argv)
 
-    if options.command is None:
+    if args.command is None:
         parser.print_help()
         sys.exit(2)
 
@@ -83,7 +74,7 @@ def main(argv=sys.argv):
     }
 
     try:
-        command_handlers[options.command](options)
+        command_handlers[args.command](args)
     except errors.YunoError as e:
         print(e.for_console())
     except KeyboardInterrupt:

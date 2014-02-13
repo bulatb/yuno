@@ -4,12 +4,14 @@
 
 import argparse
 
+from . import cli_base
+
 
 DESCRIPTION = 'Compiler! Y U NO compile???'
 
 
 def build_arg_parser():
-    parser = argparse.ArgumentParser(description=DESCRIPTION)
+    parser = argparse.ArgumentParser()
 
     parser.add_argument(
         'command',
@@ -21,16 +23,34 @@ def build_arg_parser():
     )
 
     parser.add_argument(
-        'tail',
-        nargs=argparse.REMAINDER,
-        help=argparse.SUPPRESS
-    )
+        '--with',
+        action=variadic_list_option(),
+        nargs='+',
+        dest='runtime_settings',
+        metavar=('key value', 'value'),
+        help='Change configuration setting <key> to <value> for this run. Use \
+        zero or more times, one `--with` per setting. If the setting is a \
+        list, add one <value> for each item.')
 
     return parser
 
 
-def get_cli_args(argv):
-    parser = build_arg_parser()
-    args = parser.parse_args(argv)
+def variadic_list_option(min_length=2):
+    class VariadicListOption(argparse.Action):
+        def __call__(self, parser, namespace, values, option_string=None):
+            num_values = len(values)
+            if num_values < min_length:
+                parser.error("%s expects at least %d values. Got %d: %s" % (
+                    option_string, min_length, num_values, ", ".join(values)))
 
-    return (args, parser)
+            if getattr(namespace, self.dest) is None:
+                setattr(namespace, self.dest, [])
+
+            getattr(namespace, self.dest).append(values)
+
+
+    return VariadicListOption
+
+
+def get_cli_args():
+    return build_arg_parser().parse_known_args()

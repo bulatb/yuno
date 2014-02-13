@@ -8,7 +8,7 @@ from os.path import isfile
 from yuno.core import history, util, errors
 from yuno.core.config import config
 
-from . import cli
+from . import cli, text
 
 
 def _in_data_folder(filename):
@@ -98,8 +98,7 @@ def _show_suites():
         print("")
 
     if len(folders) > 1:
-        print("Suite folders are searched in the order above, top to bottom.")
-        print("Ones you make with --save go in the first.")
+        print(text.SEARCH_ORDER)
 
 
 def _show_last():
@@ -107,9 +106,9 @@ def _show_last():
 
 
 def main(argv=sys.argv):
-    options, parser = cli.get_cli_args(argv)
+    args, parser = cli.get_cli_args(argv)
 
-    if options.what is None:
+    if args.what is None:
         parser.print_help()
         sys.exit(2)
 
@@ -125,7 +124,7 @@ def main(argv=sys.argv):
     }
 
     try:
-        command_handlers[options.what]()
+        command_handlers[args.what]()
     except errors.YunoError as e:
         print(e.for_console())
     except KeyboardInterrupt:
