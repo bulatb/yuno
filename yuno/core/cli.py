@@ -4,8 +4,6 @@
 
 import argparse
 
-from . import cli_base
-
 
 DESCRIPTION = 'Compiler! Y U NO compile???'
 
