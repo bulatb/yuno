@@ -1,2 +1,2 @@
-result=fail exit=10 stderr=favrits.stderr
+result=fail exit=10
 * not sleep
