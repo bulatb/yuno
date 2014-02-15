@@ -260,7 +260,7 @@ def _display_results(harness):
         print("      View? yuno.py show warned")
 
     if num_regressions > 0:
-        print("\n- %d %s\n   ".format(
+        print("\n- %d %s\n   " % (
             num_regressions,
             util.nice_plural(num_regressions, 'regression', 'regressions')),
             end='')
