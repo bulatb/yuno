@@ -41,7 +41,7 @@ def main():
     args = build_arg_parser().parse_args()
     actions, body_text = parse_instructions(args.filename)
 
-    os.chdir(os.path.dirname(args.filename))
+    os.chdir(os.path.dirname(args.filename) or '.')
 
     for name, value in actions.items():
         globals().get('action_' + name, lambda x: None)(value)
@@ -49,6 +49,8 @@ def main():
     if actions['result'] == 'fail':
         sys.stdout.write(body_text)
 
+    sys.stdout.flush()
+    sys.stderr.flush()
     sys.exit(int(actions['exit']))
 
 

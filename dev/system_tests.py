@@ -4,15 +4,16 @@ from __future__ import print_function
 import os
 from os.path import abspath, dirname, join, normpath
 import sys
+from time import sleep
 
 import subprocess
 
 
-yuno_home = normpath(join(abspath(dirname(__file__)), '..'))
+YUNO_HOME = normpath(join(abspath(dirname(__file__)), '..'))
 
 
 def run_all_tests():
-    test_runner = join(yuno_home, 'dev', 'system_tests.py')
+    test_runner = join(YUNO_HOME, 'dev', 'system_tests.py')
     args = [
         '--with compiler_invocation "python %s {testcase}"' % test_runner,
         '--with source_extension .txt',
@@ -22,8 +23,8 @@ def run_all_tests():
     ]
 
     try:
-        os.chdir(yuno_home)
-        output = subprocess.check_output(
+        os.chdir(YUNO_HOME)
+        runner = subprocess.Popen(
             'yuno.py run all ' + ' '.join(args),
             # Use shell=True so the shell can read yuno's shebang and find py3.
             # Windows installations may or may not have a `python3` that points
@@ -33,38 +34,48 @@ def run_all_tests():
             shell=True,
             universal_newlines=True)
 
-        # Normally the output would be bytes, but it seems that
-        # universal_newlines adds a string conversion. Makes sense, but don't
-        # forget.
-        print(output)
+        while runner.poll() is None:
+            sleep(1)
+
 
     except subprocess.CalledProcessError as e:
         print("Error launching test runner:")
         print(str(e.output), str(e.cmd))
 
 
-def run_single_test():
-    with open(sys.argv[1]) as system_test:
-        args = system_test.read().strip()
+CHECK_AGAINST_LOG = 'log'
+CHECK_AGAINST_OUTPUT = 'output'
 
-    mock_compiler = join(yuno_home, 'dev', 'mock_compiler.py')
+
+def run_single_test():
+    target_logs_to = 'dev/test_runs/target'
+
+    with open(sys.argv[1]) as system_test:
+        test_instructions = system_test.readlines()
+        mode = test_instructions[0].split('=')[1].strip()
+        args = test_instructions[1].strip()
+
+    mock_compiler = '../../../mock_compiler.py'
     args += ' --with compiler_invocation "python %s {testcase}"' % mock_compiler
-    args += ' --with data_folder dev/test_runs/target'
+    args += ' --with data_folder %s' % target_logs_to
 
     try:
-        os.chdir(yuno_home)
+        os.chdir(YUNO_HOME)
         output = subprocess.check_output(
             'yuno.py ' + args,
             shell=True,
             universal_newlines=True)
 
-        print(output)
+        if mode == CHECK_AGAINST_OUTPUT:
+            print(output, end='')
+        elif mode == CHECK_AGAINST_LOG:
+            with open(join(target_logs_to, 'last-run.txt')) as log:
+                # Eat the first line, print the rest. These logs will be short.
+                print(''.join(log.readlines()[1:]), end='')
 
     except subprocess.CalledProcessError as e:
         print("Error running test: ")
         print(str(e.output), str(e.cmd))
-
-
 
 
 if __name__ == '__main__':
