@@ -25,12 +25,16 @@ def _build_regex_filter(regex):
     return filter_function
 
 
+def _data_file(filename):
+    return posixpath.join(config.data_folder, filename)
+
+
 # TODO: This function was designed before the diff feature was added. Having to
 # pass [options] sucks.
 def _run_tests(options, test_set=None, glob=None):
     def pause_controller(test_result):
         if test_result in (options.pause_on or []):
-            raw_input("Paused. Press Enter to continue.\n")
+            input("Paused. Press Enter to continue.\n")
 
 
     if glob is not None:
@@ -155,8 +159,9 @@ def _run_failed(options):
 
     try:
         test_set = core.testing.load_from_file(
-            'data/last-run.txt', line_filter=is_failed, test_class=TEST_CLASS
-        )
+            _data_file('last-run.txt'),
+            line_filter=is_failed,
+            test_class=TEST_CLASS)
         return _run_tests(options, test_set=test_set)
     except core.errors.DataFileError as e:
         e.message = 'Unreadable or missing run log. Have you run any tests?'
@@ -167,7 +172,7 @@ def _run_failing(options):
     """$ yuno run failing
     """
     print("Running all tests currently failing:\n")
-    return _run_suite(options, filename='data/failing.txt')
+    return _run_suite(options, filename=_data_file('failing.txt'))
 
 
 def _run_passed(options):
@@ -181,8 +186,9 @@ def _run_passed(options):
 
     try:
         test_set = core.testing.load_from_file(
-            'data/last-run.txt', line_filter=is_passed, test_class=TEST_CLASS
-        )
+            _data_file('last-run.txt'),
+            line_filter=is_passed,
+            test_class=TEST_CLASS)
         return _run_tests(options, test_set=test_set)
     except core.errors.DataFileError as e:
         e.message = 'Unreadable or missing run log. Have you run any tests?'
@@ -193,7 +199,7 @@ def _run_passing(options):
     """$ yuno run passing
     """
     print("Running all tests currently passing:\n")
-    return _run_suite(options, filename='data/passing.txt')
+    return _run_suite(options, filename=_data_file('passing.txt'))
 
 
 def _run_files(options):
