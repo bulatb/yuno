@@ -1,0 +1,2 @@
+mode=log
+run phase 1-2 check 1-2 --with test_folder dev/fixtures/repos/131-project2-layout

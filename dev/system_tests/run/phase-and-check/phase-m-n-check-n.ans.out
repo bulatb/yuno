@@ -5,14 +5,11 @@
 0 fixes
 
 ................................................................................
-4 passed
-p phase3/check15a/check15a.rc
-p phase3/check15b/check15b.rc
-p phase3/check15c/check15c.rc
-p phase3/check16a/check16a.rc
+1 passed
+p phase1/check1/phase1check1.rc
 ................................................................................
-0 failed
-
+1 failed
+f phase2/check1/phase2check1.rc
 ................................................................................
 0 skipped
 
