@@ -6,26 +6,25 @@ from os.path import abspath, dirname, join, normpath
 import sys
 from time import sleep
 
+import argparse
 import subprocess
 
 
 YUNO_HOME = normpath(join(abspath(dirname(__file__)), '..'))
 
 
-def run_all_tests():
+def run_all_tests(args):
     test_runner = join(YUNO_HOME, 'dev', 'system_tests.py')
-    args = [
-        '--with compiler_invocation "python %s {testcase}"' % test_runner,
+    args += [
+        '--with compiler_invocation "python %s --e2e {testcase}"' % test_runner,
         '--with source_extension .txt',
-        '--diff unified',
         '--with test_folder dev/system_tests',
         '--with data_folder dev/test_runs/tester'
     ]
 
     try:
         os.chdir(YUNO_HOME)
-        runner = subprocess.Popen(
-            'yuno.py run all ' + ' '.join(args),
+        runner = subprocess.Popen('yuno.py ' + ' '.join(args),
             # Use shell=True so the shell can read yuno's shebang and find py3.
             # Windows installations may or may not have a `python3` that points
             # to Python 3, but Python 3 on Windows has an automatic version
@@ -47,10 +46,10 @@ CHECK_AGAINST_LOG = 'log'
 CHECK_AGAINST_OUTPUT = 'output'
 
 
-def run_single_test():
+def run_single_test(test_name):
     target_logs_to = 'dev/test_runs/target'
 
-    with open(sys.argv[1]) as system_test:
+    with open(test_name) as system_test:
         test_instructions = system_test.readlines()
         mode = test_instructions[0].split('=')[1].strip()
         args = test_instructions[1].strip()
@@ -78,10 +77,23 @@ def run_single_test():
         print(str(e.output), str(e.cmd))
 
 
+def build_arg_parser():
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        '--e2e',
+        dest='test_name',
+        default=None)
+
+    return parser
+
+
 if __name__ == '__main__':
     version = sys.version_info[0]
-    if len(sys.argv) > 1:
-        run_single_test()
+    driver_args, yuno_args = build_arg_parser().parse_known_args()
+
+    if driver_args.test_name:
+        run_single_test(driver_args.test_name)
     else:
         print('(py%d) Running all tests (from %s)...' % (version, os.getcwd()))
-        run_all_tests()
+        run_all_tests(yuno_args)
