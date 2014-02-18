@@ -1,0 +1,2 @@
+mode=output set-passing=last-run.log
+show last --with test_folder dev/fixtures/repos/131-project1-layout

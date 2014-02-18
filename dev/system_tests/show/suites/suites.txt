@@ -1,0 +1,2 @@
+mode=output
+show suites --with suite_folders dev/fixtures/suites/suites1 dev/fixtures/suites/suites2
