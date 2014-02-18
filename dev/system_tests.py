@@ -3,6 +3,7 @@ from __future__ import print_function
 
 import os
 from os.path import abspath, dirname, join, normpath
+import shutil
 import sys
 from time import sleep
 
@@ -48,11 +49,21 @@ CHECK_AGAINST_OUTPUT = 'output'
 
 def run_single_test(test_name):
     target_logs_to = 'dev/test_runs/target'
+    abspath_to_test = abspath(dirname(test_name))
 
     with open(test_name) as system_test:
-        test_instructions = system_test.readlines()
-        mode = test_instructions[0].split('=')[1].strip()
-        args = test_instructions[1].strip()
+        lines = system_test.readlines()
+        test_setup = dict([opt.split('=') for opt in lines[0].strip().split()])
+
+        mode = test_setup['mode']
+
+        for setting, value in test_setup.items():
+            if setting.startswith('set-'):
+                _set_log_file(
+                    join(YUNO_HOME, target_logs_to, setting[4:] + '.txt'),
+                    join(abspath_to_test, value))
+
+        args = lines[1].strip()
 
     mock_compiler = '../../../mock_compiler.py'
     args += ' --with compiler_invocation "python %s {testcase}"' % mock_compiler
@@ -75,6 +86,10 @@ def run_single_test(test_name):
     except subprocess.CalledProcessError as e:
         print("Error running test: ")
         print(str(e.output), str(e.cmd))
+
+
+def _set_log_file(log_file, contents_file):
+    shutil.copyfile(contents_file, log_file)
 
 
 def build_arg_parser():
