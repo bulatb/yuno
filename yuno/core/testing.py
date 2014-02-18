@@ -188,6 +188,10 @@ class Test(object):
         return self.source.path
 
 
+    def __lt__(self, other):
+        return self.source.path < other.source.path
+
+
 class Harness(object):
     def __init__(self, diff_routine=None, pause_controller=None):
         self.diff_routine = diff_routine
@@ -321,19 +325,21 @@ class Harness(object):
 
         failed = [str(test) for test in self.failed]
         passed = [str(test) for test in self.passed]
-        self.regressions = self._previously_passing.intersection(failed)
-        self.fixes = self._previously_failing.intersection(passed)
+        self.regressions = sorted(self._previously_passing.intersection(failed))
+        self.fixes = sorted(self._previously_failing.intersection(passed))
 
         # Making sure to account for tests that weren't run this time.
         now_passing = self._previously_passing.union(passed).difference(failed)
         now_failing = self._previously_failing.union(failed).difference(passed)
 
         with working_dir(config.data_folder):
-            with open('passing.txt', 'w+') as passing:
-                passing.writelines([str(test) + '\n' for test in now_passing])
+            Suite(None, 'passing.txt', sorted(now_passing)).save()
+            Suite(None, 'failing.txt', sorted(now_failing)).save()
+            # with open('passing.txt', 'w+') as passing:
+            #     passing.writelines([str(test) + '\n' for test in now_passing])
 
-            with open('failing.txt', 'w+') as failing:
-                failing.writelines([str(test) + '\n' for test in now_failing])
+            # with open('failing.txt', 'w+') as failing:
+            #     failing.writelines([str(test) + '\n' for test in now_failing])
 
         record = history.RunRecord(
             regressions=self.regressions,
@@ -402,7 +408,7 @@ def load_from_glob(file_glob, test_class=Test):
     tests = []
 
     with working_dir(config.test_folder):
-        return [test_class(path) for path in globlib.glob(file_glob)]
+        return sorted([test_class(path) for path in globlib.glob(file_glob)])
 
 
 def load_from_file(name_or_handle, test_class=Test, line_filter=None):
@@ -442,7 +448,7 @@ def load_from_file(name_or_handle, test_class=Test, line_filter=None):
             # Got passed an open file. Read it, but don't close it.
             return get_tests(name_or_handle)
 
-    return tests
+    return sorted(tests)
 
 
 def load_all(test_class=Test, filter_fn=None):
@@ -465,7 +471,7 @@ def load_all(test_class=Test, filter_fn=None):
     if filter_fn:
         return filter(filter_fn, tests)
 
-    return tests
+    return sorted(tests)
 
 
 def load_from_regex(compiled_pattern, test_class=Test):
@@ -528,4 +534,4 @@ def load_by_walking(search_path, test_class=Test):
             return tests
 
     with working_dir(config.test_folder):
-        return search_folder('.', search_path)
+        return sorted(search_folder('.', search_path))
