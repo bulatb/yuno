@@ -1,0 +1,2 @@
+mode=log set-last-run=1-failed.log
+run failed --with test_folder dev/fixtures/repos/generic-layout
