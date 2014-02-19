@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 from __future__ import print_function
 
+import glob
 import os
 from os.path import abspath, dirname, join, normpath
 import shutil
@@ -13,6 +14,12 @@ import subprocess
 
 YUNO_HOME = normpath(join(abspath(dirname(__file__)), '..'))
 
+CHECK_AGAINST_LOG = 'log'
+CHECK_AGAINST_OUTPUT = 'output'
+
+TESTER_LOG_DIR = 'dev/test_runs/tester'
+TARGET_LOG_DIR = 'dev/test_runs/target'
+
 
 def run_all_tests(args):
     test_runner = join(YUNO_HOME, 'dev', 'system_tests.py')
@@ -20,7 +27,7 @@ def run_all_tests(args):
         '--with compiler_invocation "python %s --e2e {testcase}"' % test_runner,
         '--with source_extension .txt',
         '--with test_folder dev/system_tests',
-        '--with data_folder dev/test_runs/tester'
+        '--with data_folder ' + TESTER_LOG_DIR
     ]
 
     try:
@@ -43,12 +50,7 @@ def run_all_tests(args):
         print(str(e.output), str(e.cmd))
 
 
-CHECK_AGAINST_LOG = 'log'
-CHECK_AGAINST_OUTPUT = 'output'
-
-
 def run_single_test(test_name):
-    target_logs_to = 'dev/test_runs/target'
     abspath_to_test = abspath(dirname(test_name))
 
     with open(test_name) as system_test:
@@ -60,14 +62,14 @@ def run_single_test(test_name):
         for setting, value in test_setup.items():
             if setting.startswith('set-'):
                 _set_log_file(
-                    join(YUNO_HOME, target_logs_to, setting[4:] + '.txt'),
+                    join(YUNO_HOME, TARGET_LOG_DIR, setting[4:] + '.txt'),
                     join(abspath_to_test, value))
 
         args = lines[1].strip()
 
     mock_compiler = '../../../mock_compiler.py'
     args += ' --with compiler_invocation "python %s {testcase}"' % mock_compiler
-    args += ' --with data_folder %s' % target_logs_to
+    args += ' --with data_folder %s' % TARGET_LOG_DIR
 
     try:
         os.chdir(YUNO_HOME)
@@ -79,9 +81,12 @@ def run_single_test(test_name):
         if mode == CHECK_AGAINST_OUTPUT:
             print(output, end='')
         elif mode == CHECK_AGAINST_LOG:
-            with open(join(target_logs_to, 'last-run.txt')) as log:
+            with open(join(TARGET_LOG_DIR, 'last-run.txt')) as log:
                 # Eat the first line, print the rest. These logs will be short.
                 print(''.join(log.readlines()[1:]), end='')
+
+        for log_file in glob.glob(join(TARGET_LOG_DIR, '*.txt')):
+            os.remove(log_file)
 
     except subprocess.CalledProcessError as e:
         print("Error running test: ")
