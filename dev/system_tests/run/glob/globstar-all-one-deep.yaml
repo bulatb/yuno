@@ -1,0 +1,6 @@
+mode: log
+command: 'run **/*'
+settings:
+  test_folder: dev/fixtures/repos/generic-layout
+  data_folder: dev/test_runs/target
+  source_extension: .testcase

@@ -1,2 +1,0 @@
-mode=log
-run check 16-17 --with test_folder dev/fixtures/repos/131-project1-layout

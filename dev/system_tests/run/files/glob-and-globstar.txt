@@ -1,2 +1,0 @@
-mode=log
-run files **/check1*/*.rc --with test_folder dev/fixtures/repos/131-project1-layout --with compiler_invocation "python ../../../mock_compiler.py {testcase}" --with data_folder dev/test_runs/target

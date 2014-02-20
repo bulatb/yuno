@@ -1,2 +1,0 @@
-mode=output set-failing=expected-failing.log
-show failing --with test_folder dev/fixtures/repos/131-project1-layout

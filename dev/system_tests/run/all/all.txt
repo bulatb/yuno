@@ -1,2 +1,0 @@
-mode=log
-run all --with test_folder dev/fixtures/repos/generic-layout --with source_extension .testcase

@@ -1,0 +1,4 @@
+mode: log
+command: 'run check 15a-16a'
+settings:
+  test_folder: dev/fixtures/repos/131-project1-layout

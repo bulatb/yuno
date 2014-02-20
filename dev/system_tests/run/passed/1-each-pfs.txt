@@ -1,2 +1,0 @@
-mode=log set-last-run=1-each-pfs.log
-run passed --with test_folder dev/fixtures/repos/131-project1-layout

@@ -1,2 +1,0 @@
-mode=output
-run suite nonexistant-suite --with test_folder dev/fixtures/repos/131-project1-layout --with data_folder dev/test_runs/target --with compiler_invocation "python ../../../mock_compiler.py {testcase}" --with suite_folders dev/fixtures/suites/suites1 dev/fixtures/suites/suites2

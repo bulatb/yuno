@@ -10,9 +10,11 @@ from time import sleep
 
 import argparse
 import subprocess
+import yaml
 
 
 YUNO_HOME = normpath(join(abspath(dirname(__file__)), '..'))
+YUNO_CMD = join('.', 'yuno.py')
 
 CHECK_AGAINST_LOG = 'log'
 CHECK_AGAINST_OUTPUT = 'output'
@@ -25,7 +27,7 @@ def run_all_tests(args):
     test_runner = join(YUNO_HOME, 'dev', 'system_tests.py')
     args += [
         '--with compiler_invocation "python %s --e2e {testcase}"' % test_runner,
-        '--with source_extension .txt',
+        '--with source_extension .yaml',
         '--with test_folder dev/system_tests',
         '--with data_folder ' + TESTER_LOG_DIR
     ]
@@ -54,29 +56,24 @@ def run_single_test(test_name):
     abspath_to_test = abspath(dirname(test_name))
 
     with open(test_name) as system_test:
-        lines = system_test.readlines()
-        test_setup = dict([opt.split('=') for opt in lines[0].strip().split()])
+        test_setup = yaml.load(system_test.read())
 
         mode = test_setup['mode']
 
-        for setting, value in test_setup.items():
-            if setting.startswith('set-'):
-                _set_log_file(
-                    join(YUNO_HOME, TARGET_LOG_DIR, setting[4:] + '.txt'),
-                    join(abspath_to_test, value))
-
-        args = lines[1].strip()
-
-    mock_compiler = '../../../mock_compiler.py'
-    args += ' --with compiler_invocation "python %s {testcase}"' % mock_compiler
-    args += ' --with data_folder %s' % TARGET_LOG_DIR
+        for log_name, log in test_setup.get('set', {}).items():
+            _set_log_file(
+                join(YUNO_HOME, TARGET_LOG_DIR, log_name + '.txt'),
+                join(abspath_to_test, log))
 
     try:
         os.chdir(YUNO_HOME)
         output = subprocess.check_output(
-            'yuno.py ' + args,
+            'yuno.py ' + _build_test_command(test_setup),
             shell=True,
             universal_newlines=True)
+
+        if 'transform-output' in test_setup:
+            output = _transform_output(output, test_setup['transform-output'])
 
         if mode == CHECK_AGAINST_OUTPUT:
             print(output, end='')
@@ -91,6 +88,41 @@ def run_single_test(test_name):
     except subprocess.CalledProcessError as e:
         print("Error running test: ")
         print(str(e.output), str(e.cmd))
+
+
+def _build_test_command(test_setup):
+    mock_compiler = '../../../mock_compiler.py'
+
+    default_settings = {
+        'compiler_invocation': '"python %s {testcase}"' % mock_compiler,
+        'data_folder': TARGET_LOG_DIR
+    }
+
+    test_settings = default_settings.copy()
+    test_settings.update(test_setup.get('settings', {}))
+
+    return '%s %s' % (
+        test_setup['command'],
+        ' '.join(['--with %s %s' % (k, v) for k, v in test_settings.items()]))
+
+
+def _transform_output(output, transforms):
+    def slice_lines(text, start=0, end=None):
+        lines = text.splitlines(True)
+        lines = lines[start:end] if end is not None else lines[start:]
+        return ''.join(lines)
+
+    allowed_transforms = {'slice-lines': slice_lines}
+
+    for name, args in transforms.items():
+        if name in allowed_transforms:
+            output = allowed_transforms[name](output, **args)
+        else:
+            raise ValueError(
+                'Unknown output-transform %s (choose from: %s)' % (
+                    name, ', '.join(allowed_transforms.keys())))
+
+    return output
 
 
 def _set_log_file(log_file, contents_file):
@@ -109,11 +141,12 @@ def build_arg_parser():
 
 
 if __name__ == '__main__':
-    version = sys.version_info[0]
+    version = '.'.join((str(v) for v in sys.version_info[:3]))
     driver_args, yuno_args = build_arg_parser().parse_known_args()
 
     if driver_args.test_name:
         run_single_test(driver_args.test_name)
     else:
-        print('(py%d) Running all tests (from %s)...' % (version, os.getcwd()))
+        print('(python %s) Running all tests (from %s)...' % (
+            version, os.getcwd()))
         run_all_tests(yuno_args)

@@ -1,0 +1,4 @@
+mode: log
+command: 'run check 2-3a'
+settings:
+  test_folder: dev/fixtures/repos/131-project1-layout
