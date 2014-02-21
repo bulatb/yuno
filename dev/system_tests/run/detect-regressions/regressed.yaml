@@ -1,0 +1,6 @@
+mode: log
+command: 'run check 2b-5'
+set:
+  passing: 'shows-one-passing.log'
+settings:
+  test_folder: dev/fixtures/repos/131-project1-layout
