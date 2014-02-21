@@ -18,8 +18,7 @@ def main(options):
     print("=" * 80)
     print("")
 
-    config.load_json('yuno/flint/settings/config.json')
-    run.main(argv=sys.argv[2:])
+    run.main(options)
 
     print("")
     print("=" * 80)
