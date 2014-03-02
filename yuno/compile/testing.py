@@ -9,9 +9,9 @@ from yuno.core.util import working_dir
 from yuno.core.config import config
 
 
-class FlintTest(core.testing.Test):
+class AssemblyWritingTest(core.testing.Test):
     def __init__(self, path):
-        super(FlintTest, self).__init__(path)
+        super(AssemblyWritingTest, self).__init__(path)
 
 
     def run_in_harness(self, harness):
@@ -30,8 +30,6 @@ class FlintTest(core.testing.Test):
                 asm_last_written = os.stat(
                     config.compiler_output_file).st_mtime
             except OSError as e:
-                print("fails here")
-                print(e)
                 harness.test_failed(self, "", "")
                 return
 

@@ -14,7 +14,9 @@ def build_arg_parser():
 
     parser.add_argument(
         'command',
-        choices=[HELP, 'run', 'show', 'certify', 'prune', 'flint', 'steel'])
+        metavar='command',
+        choices=[HELP, 'run', 'show', 'certify', 'prune', 'compile', 'steel'],
+        help='One of: %(choices)s')
 
     parser.add_argument(
         '--with',
