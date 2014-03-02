@@ -1,24 +1,17 @@
 import sys
 
-import yuno.core.config as config
-from yuno.run import run
+from yuno.run import cli as run_cli, run
 
 from .testing import AssemblyGenerator, FlintTest
 
 
-def main(options):
-    # Hack
-    run.HARNESS = AssemblyGenerator
-    run.TEST_CLASS = FlintTest
-
-    # Haaaaaack
-    run._display_results = (lambda x: None)
-
+def main(argv):
     print("\nRunning your compiler to generate assembly files.")
-    print("=" * 80)
-    print("")
+    print("=" * 80, end='\n\n')
 
-    run.main(options)
+    args, _ = run_cli.get_cli_args(argv)
+    print(args)
+    run.load_and_run(AssemblyGenerator(), FlintTest, args)
 
     print("")
     print("=" * 80)
