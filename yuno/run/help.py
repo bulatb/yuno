@@ -1,10 +1,14 @@
-usage = """yuno.py run all
-  or   yuno.py run <glob>
-  or   yuno.py run phase <#> check <#>
-  or   yuno.py run phase <#>
-  or   yuno.py run check <#>
-  or   yuno.py run suite <name>
+usage = """%(prog)s run [-h] all
+  or   %(prog)s run <glob>
+  or   %(prog)s run phase <#> check <#>
+  or   %(prog)s run phase <#>
+  or   %(prog)s run check <#>
+  or   %(prog)s run suite <name>
+  or   stream | %(prog)s run -
 
+"""
+
+description = """\
 note:
   all forms support the optional arguments below
 
@@ -14,7 +18,7 @@ details:
 
   run <glob>
       run all tests in folders matching this glob
-      Ex: yuno.py run phase1/check[1-3]
+      Ex: %(prog)s run phase1/check[1-3]
 
   run fail(ed|ing)
       failed: run all tests that failed on the last run
@@ -30,7 +34,7 @@ details:
 
   run -
       run a newline-delimited stream of file paths given through a pipe
-      Ex: yuno.py run - < some-tests.txt
+      Ex: %(prog)s run - < some-tests.txt
 
   run (phase|check) <#>
       run all tests for this check or phase
@@ -41,4 +45,5 @@ details:
 
   run suite <name>
       run the given suite of tests
+
 """

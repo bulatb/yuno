@@ -14,7 +14,10 @@ SHOW_LAST = 'last'
 
 
 def build_arg_parser():
-    parser = argparse.ArgumentParser(usage=help.usage)
+    parser = argparse.ArgumentParser(
+        usage=help.usage,
+        description=help.description,
+        formatter_class=argparse.RawDescriptionHelpFormatter)
 
     parser.add_argument(
         'what',

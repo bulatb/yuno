@@ -1,5 +1,6 @@
-usage = """yuno show [-h] <what>
+usage = "%(prog)s show [-h] <what>"
 
+description = """\
 details:
   show fail[ed|ing]
       failed: every test that failed on the last run
@@ -17,4 +18,5 @@ details:
 
   show suites
       a list of suites Yuno is tracking
+
 """
