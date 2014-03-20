@@ -1,0 +1,9 @@
+mode: output
+set:
+  last-run: 'skipped.log'
+command: 'show skipped'
+settings:
+  test_folder: dev/fixtures/repos/131-project1-layout
+transform-output:
+  slice-lines:
+    end: -1

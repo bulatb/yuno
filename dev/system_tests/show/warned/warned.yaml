@@ -1,0 +1,9 @@
+mode: output
+set:
+  last-run: 'warned.log'
+command: 'show warned'
+settings:
+  test_folder: dev/fixtures/repos/131-project1-layout
+transform-output:
+  slice-lines:
+    end: -1
