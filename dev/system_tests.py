@@ -2,8 +2,10 @@
 from __future__ import print_function
 
 import glob
+import itertools
 import os
 from os.path import abspath, dirname, join, normpath
+import shlex
 import shutil
 import sys
 from time import sleep
@@ -34,7 +36,7 @@ def run_all_tests(args):
 
     try:
         os.chdir(YUNO_HOME)
-        runner = subprocess.Popen('yuno.py ' + ' '.join(args),
+        runner = subprocess.Popen('%s %s' % (YUNO_CMD,  ' '.join(args)),
             # Use shell=True so the shell can read yuno's shebang and find py3.
             # Windows installations may or may not have a `python3` that points
             # to Python 3, but Python 3 on Windows has an automatic version
@@ -68,8 +70,7 @@ def run_single_test(test_name):
     try:
         os.chdir(YUNO_HOME)
         output = subprocess.check_output(
-            'yuno.py ' + _build_test_command(test_setup),
-            shell=True,
+            ['python', YUNO_CMD] + _build_test_command(test_setup),
             universal_newlines=True)
 
         if 'transform-output' in test_setup:
@@ -101,9 +102,11 @@ def _build_test_command(test_setup):
     test_settings = default_settings.copy()
     test_settings.update(test_setup.get('settings', {}))
 
-    return '%s %s' % (
-        test_setup['command'],
-        ' '.join(['--with %s %s' % (k, v) for k, v in test_settings.items()]))
+    command = shlex.split(test_setup['command'])
+    for k, v in test_settings.items():
+        command.extend(['--with', k] + shlex.split(v))
+
+    return command
 
 
 def _transform_output(output, transforms):
