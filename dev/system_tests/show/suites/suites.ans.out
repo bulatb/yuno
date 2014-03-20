@@ -1,0 +1,11 @@
+All suites:
+
+  dev/fixtures/suites/suites1/
+    one-suite
+    two-suite
+
+  dev/fixtures/suites/suites2/
+    another-suite
+
+Suite folders are searched in the order above, top to bottom.
+Ones you make with --save go in the first.

@@ -1,0 +1,6 @@
+mode: output
+command: 'show failing'
+set:
+  failing: expected-failing.log
+settings:
+  test_folder: dev/fixtures/repos/131-project1-layout

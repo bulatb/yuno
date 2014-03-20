@@ -1,0 +1,4 @@
+mode: output
+command: 'show suites'
+settings:
+  suite_folders: 'dev/fixtures/suites/suites1 dev/fixtures/suites/suites2'

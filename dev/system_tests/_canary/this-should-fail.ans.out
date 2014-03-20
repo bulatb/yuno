@@ -1,0 +1,2 @@
+This makes sure the test rig can catch failures. If it passes, there's
+something wrong.

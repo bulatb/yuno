@@ -1,0 +1,9 @@
+mode: output
+command: 'show last'
+set:
+  last-run: 'last-run.log'
+settings:
+  test_folder: dev/fixtures/repos/131-project1-layout
+transform-output:
+  slice-lines:
+    start: 1

@@ -1,0 +1,5 @@
+mode: log
+command: 'run all'
+settings:
+  test_folder: dev/fixtures/repos/generic-layout
+  source_extension: .testcase

@@ -1,0 +1,6 @@
+mode: log
+command: 'run failed'
+set:
+  last-run: 1-each-pfs.log
+settings:
+  test_folder: dev/fixtures/repos/131-project1-layout

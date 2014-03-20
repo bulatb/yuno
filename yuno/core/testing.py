@@ -158,6 +158,7 @@ class Test(object):
                     compile_command, e.returncode
                 )
             )
+            output = e.output
 
         try:
             answer_file = open(self.answer.path)

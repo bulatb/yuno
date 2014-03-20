@@ -1,0 +1,21 @@
+
+0 regressions
+
+................................................................................
+0 fixes
+
+................................................................................
+3 passed
+p enrichment/chamber1/subject-hometown.testcase
+p enrichment/chamber1/subject-name.testcase
+p enrichment/chamberskipafew/google-cheat-codes.testcase
+................................................................................
+1 failed
+f enrichment/chamberskipafew/99/runaway-recursion/ohno/cant-stop-the-bacon/bacon-forever/stack-explodes/poof/no-more-anything/ever/you-broke-it-all/nice-going-hero/gg.testcase
+................................................................................
+0 skipped
+
+................................................................................
+1 warned
+w enrichment/chamber1/subject-name.testcase
+................................................................................

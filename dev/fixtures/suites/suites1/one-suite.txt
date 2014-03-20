@@ -1,0 +1,2 @@
+phase1/check1/is-it-compile.rc
+phase1/check3a/3a.rc

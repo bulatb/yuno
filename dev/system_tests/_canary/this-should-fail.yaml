@@ -1,0 +1,4 @@
+mode: output
+command: 'run mode'
+settings:
+  test_folder: dev/fixtures/repos/131-project1-layout
