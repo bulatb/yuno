@@ -99,11 +99,19 @@ def _build_test_command(test_setup):
         'data_folder': TARGET_LOG_DIR
     }
 
-    test_settings = default_settings.copy()
-    test_settings.update(test_setup.get('settings', {}))
+    settings = default_settings.copy()
+    settings_from_test = test_setup.get('settings', {})
+
+    # Checking every test's compiler_invocation for malicious code is not
+    # acceptable, but running dozens of them without checking is too dangerous.
+    # TODO: Think about a better way to solve this.
+    if 'compiler_invocation' in settings_from_test:
+        raise ValueError('compiler_invocation not allowed in test settings')
+
+    settings.update(settings_from_test)
 
     command = shlex.split(test_setup['command'])
-    for k, v in test_settings.items():
+    for k, v in settings.items():
         command.extend(['--with', k] + shlex.split(v))
 
     return command
