@@ -10,7 +10,7 @@ from yuno.core.util import working_dir
 
 def main(argv=None):
     # Figure out where Yuno lives so plugins can cd correctly if they need to.
-    yuno_home = os.path.abspath(os.path.dirname(__file__))
+    yuno_home = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
     config.update('YUNO_HOME', yuno_home)
 
     with working_dir(yuno_home):
