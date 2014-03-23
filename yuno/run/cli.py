@@ -27,33 +27,48 @@ class OverloadedArg(argparse.Action):
         num_values = len(values)
         command = None
 
-        # Let's not get all polymorphic here.
-        # Explicit is better.
-
         if num_values == 1:
             if values[0] in ONE_ARG_COMMANDS:
                 command = values[0]
-            else: # it's a glob
+            else:
+                # It's a glob.
                 command = RUN_GLOB
                 setattr(namespace, 'glob', values[0])
         elif num_values == 2:
-            if values[0] == RUN_PHASE:
-                command = RUN_PHASE
-                setattr(namespace, 'phase', values[1])
-            elif values[0] == RUN_CHECK:
-                command = RUN_CHECK
-                setattr(namespace, 'check', values[1])
-            elif values[0] == RUN_FILES:
-                command = RUN_FILES
-                setattr(namespace, 'files', values[1])
-            elif values[0] == RUN_SUITE:
-                command = RUN_SUITE
-                setattr(namespace, 'suite', values[1])
+            # Example:
+            #
+            # `yuno run phase 1` will make a namespace like this:
+            #     (command='run', phase='1', ...)
+            #
+            # where <command> is <values[0]> and a field named <values[0]> is
+            # <values[1]>. The <command> is used for routing to a handler
+            # which will read <values[1]> from a key named <values[0]>.
+            #
+            # TODO: This maybe shouldn't need a comment to be clear.
+            argument, value = values
+            setattr(namespace, argument, value)
+
+            command = values[0]
         elif num_values == 4:
             if values[0] == RUN_PHASE and values[2] == RUN_CHECK:
                 command = RUN_PHASE_AND_CHECK
                 setattr(namespace, 'phase', values[1])
                 setattr(namespace, 'check', values[3])
+            else:
+                parser.error("Expected `phase <#> check <#>`; got `%s`" % (
+                    ' '.join(values)))
+        else:
+            num_shown = 6
+            num_hidden = num_values - num_shown
+            shown_values = values[:num_shown]
+
+            message = "Expected 1, 2, or 4 arguments; got %d: %s" % (
+                num_values, ' '.join(shown_values))
+
+            if num_hidden > 0:
+                message += " [... %d more]" % num_hidden
+
+            parser.error(message)
 
         setattr(namespace, 'command', command)
 
