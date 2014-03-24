@@ -266,8 +266,8 @@ def display_results(harness):
         print("\n    ".join([str(f) for f in sorted(harness.fixes)]))
 
 
-def load_and_run(harness, test_class, args, command=None):
-    loaders = {
+def get_loader(command):
+    return {
         cli.RUN_ALL: _all_tests,
         cli.RUN_GLOB: _tests_matching_path_glob,
         cli.RUN_PIPE: _tests_from_pipe,
@@ -280,35 +280,36 @@ def load_and_run(harness, test_class, args, command=None):
         cli.RUN_PASSING: _passing_tests,
         cli.RUN_FILES: _tests_matching_file_glob,
         cli.RUN_SUITE: _tests_in_suite
-    }
-
-    test_set, message = loaders[command or args.command](test_class, args)
-
-    print("Running %s:\n" % message)
-    harness.run_set(test_set)
-
-    return test_set
+    }[command]
 
 
-def main(argv=sys.argv):
-    args, parser = cli.get_cli_args(argv)
+def build_harness(options, harness_class=core.testing.Harness):
+    diff_routine = diff_routines.__dict__.get(options.diff_mode)
+    pauser = build_pauser(options.pause_on)
 
-    if args.command is None:
-        parser.print_help()
-        sys.exit(2)
+    return harness_class(
+        diff_routine=diff_routine, pause_controller=pauser)
 
-    diff_routine = diff_routines.__dict__.get(args.diff_mode)
-    pauser = build_pauser(args.pause_on)
-    harness = core.testing.Harness(
-        diff_routine=diff_routine,
-        pause_controller=pauser)
+
+def load_and_run(
+        args,
+        harness=None,
+        test_class=None, test_set=None,
+        load_tests=None,
+        message=None):
+    message = message or "Running {which_tests}: "
+    harness = harness or build_harness(args)
 
     try:
-        test_set = load_and_run(harness, core.testing.Test, args)
-        display_results(harness)
+        if test_set is None:
+            test_class = test_class or core.testing.Test
+            load_tests = load_tests or get_loader(args.command)
 
-        if args.save_as:
-            _save_suite(args.save_as, test_set, overwrite=args.overwrite)
+            test_set, description = load_tests(test_class, args)
+            message = message.format(which_tests=description)
+
+        print(message + '\n')
+        harness.run_set(test_set)
 
     except core.errors.SuiteLoadError as e:
         print(e.for_console())
@@ -335,3 +336,21 @@ def main(argv=sys.argv):
 
     except KeyboardInterrupt:
         print("Run stopped. Results were not recorded.")
+
+    finally:
+        return harness, test_set or set()
+
+
+def main(argv):
+    args, parser = cli.get_cli_args(argv)
+
+    if args.command is None:
+        parser.print_help()
+        sys.exit(2)
+
+    harness, test_set = load_and_run(args)
+    if len(test_set) > 0:
+        display_results(harness)
+
+    if args.save_as:
+        _save_suite(args.save_as, test_set, overwrite=args.overwrite)

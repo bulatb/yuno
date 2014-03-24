@@ -10,7 +10,11 @@ def main(argv):
     print("=" * 80, end='\n\n')
 
     args, _ = run_cli.get_cli_args(argv)
-    run.load_and_run(AssemblyGenerator(), AssemblyWritingTest, args)
+    run.load_and_run(
+        args,
+        harness=AssemblyGenerator(),
+        test_class=AssemblyWritingTest,
+        message="Compiling {which_tests}: ")
 
     print("")
     print("=" * 80)
