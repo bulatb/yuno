@@ -1,3 +1,4 @@
+from collections import namedtuple
 import os
 import posixpath
 import shutil
@@ -5,7 +6,7 @@ import subprocess
 import sys
 import time
 
-from yuno.run import run
+from yuno.run import run, cli as run_cli
 from yuno.core import config, testing
 from yuno.core.config import config as settings
 
@@ -18,6 +19,7 @@ class WatchTest(testing.Test):
 
 
     def run_in_harness(self, harness):
+        print(self.source.path, self.source.path + '.most-recent')
         shutil.copyfile(self.source.path, self.source.path + '.most-recent')
         super(WatchTest, self).run_in_harness(harness)
 
@@ -66,10 +68,12 @@ def _delete_assembly():
         os.remove(posixpath.join(settings.test_folder, test.source.path))
 
 
-def _watch_for_files():
+def _watch_for_files(options):
     _record_pid()
 
+    args, _ = run_cli.get_cli_args(['all'])
     donefile = posixpath.join(settings.test_folder, '.done')
+
     print("Waiting for new tests. PID: " + str(os.getpid()))
 
     while True:
@@ -77,12 +81,11 @@ def _watch_for_files():
             os.remove(donefile)
 
             print("Found new tests.\n", "=" * 80, sep="\n")
-
-            run.TEST_CLASS = WatchTest
-            run.main(argv=['all'])
+            run.load_and_run(args, test_class=WatchTest)
             _delete_assembly()
 
-            print("\n", "=" * 80, "Done.\n", sep="\n")
+            print("")
+            print("=" * 80, "Done.\n", sep="\n")
             print("Waiting for new tests. PID: " + str(os.getpid()))
 
         time.sleep(settings.check_interval)
@@ -97,7 +100,7 @@ def main(argv=sys.argv):
         elif options.kill_running:
             _kill_running()
         else:
-            _watch_for_files()
+            _watch_for_files(options)
     except KeyboardInterrupt:
         print("Watch stopped. Cleaning up...")
         _delete_assembly()
