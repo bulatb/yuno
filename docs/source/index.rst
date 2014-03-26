@@ -3,20 +3,51 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Yuno's documentation!
-================================
+.. include:: intro.rst
 
-Contents:
+Manual Contents:
+----------------
+
+How It Works
+............
 
 .. toctree::
-   :maxdepth: 2
 
+   Introduction (this page) <intro>
+   how
 
+Download and Install
+....................
 
-Indices and tables
-==================
+.. toctree::
 
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+   install
+
+Working With Tests
+..................
+
+.. toctree::
+
+   run-tests
+   create-tests
+   clean-up
+
+Test History
+............
+
+.. toctree::
+
+   show-info
+
+Customize Yuno
+..............
+
+.. toctree::
+
+   customize
+
+.. toctree::
+   :hidden:
+
+   intro
 
