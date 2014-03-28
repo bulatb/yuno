@@ -1,46 +1,98 @@
-Download and install
-====================
+Installing
+==========
 
-Python check
-------------
+.. |ieng9_python3_path| replace:: ``/software/common/python-3.2/bin/``
 
-Yuno requires Python 2.7.x (not 2.6 or 3.x). It's a long, sad, highly fragmented story. If you don't already have it, or you have a different version, you should `get a copy <http://www.python.org/download/releases/2.7/>`_ and install it somewhere nice. You can check your default Python install's version like this: ``$ python --version``. ProTip: for ieng6 users, Python 2.7 lives in ``/software/common/python-2.7/bin/python2.7``.
+Python
+------
 
-If you have multiple Python installs and don't want to fiddle with shebangs, it might be good to make an alias for the runtime you want::
+Yuno uses Python, either 3.x or 2.7. If you need it, use your package manager or `get a copy <http://www.python.org/downloads>`_ and install it somewhere nice.
 
-    # Just one of many ways to do this
-    $ alias yuno="/path/to/python2.7 yuno.py"
+Not sure if you have Python, or which version? On Linux/OS X, use::
 
-The framework
--------------
+    # Check for any version
+    python -V
 
-If you're using Git, just::
+    # Check for Python 3
+    python3 -V
 
-    $ cd /your/project
-    $ git clone https://github.com/bulatb/yuno.git
+On Windows::
 
-If not, download the `project zip <https://github.com/bulatb/yuno/archive/master.zip>`_ and extract it wherever you want.
+    :: Any version
+    python -V
 
-**Note**: For a hassle-free install that works out of the box, your folder structure should look like this::
+    :: Python 3
+    py -3 -V
 
-    /your/project/ (anywhere)
-        .eclipsecrap, etc/
+
+Yuno
+----
+
+.. _install-for-131:
+
+For Rick Ord's 131
+..................
+
+It's pre-configured for the starter code. Clone it or extract the (`archive <https://github.com/bulatb/yuno/archive/v0.3.zip>`_ | `tarball <https://github.com/bulatb/yuno/archive/v0.3.tar.gz>`_) next to ``bin/`` and you'll be set.
+
+To clone with Git::
+
+    cd /your/project
+    git clone https://github.com/bulatb/yuno.git
+    cd yuno
+    git checkout v0.3
+
+Your goal is a directory which looks like this::
+
+    your/project/
+        .eclipse_turds, .idea_spam, etc/
         bin/
             (.class files)
+        src/
+            (.java files)
         testcases/
-            (test repo; see below)
+            (we'll get to this)
         yuno/
             (yuno.py, etc)
 
-CSE 131: the test repo
-----------------------
+For other projects
+..................
 
-Historically it's been a good idea to maintain a central, class-wide test repo for everyone to share their tests. Someone usually steps up to manage it and make sure everything stays good. To get yourself a working copy, or just see the folder structure it should have, see the `GitHub project here <https://github.com/bulatb/compilers-testcases>`_.
+Download Yuno as above and put it anywhere you want. To get it working for your project, open ``settings/config.json`` and set ``test_folder``, ``compiler_invocation``, and ``compiler_classpath`` (if your project uses Java) to whatever is appropriate.
 
-If your care cup is `especially empty <http://pinterest.com/pin/135178426287092414/>`_, clone that repo next to Yuno and skip down down to the manual.
+On ieng9
+........
+
+Install Yuno :ref:`for 131 <install-for-131>`, but note the default Python version is too old. Python 3.2 is found in |ieng9_python3_path|.
+
+Make it nice
+------------
+
+At this point, Yuno can be run with either
 
 ::
 
-    $ cd /your/project
-    $ git clone https://github.com/bulatb/compilers-testcases.git
+    ./yuno.py <args>
+
+or
+
+::
+
+    <python executable> yuno.py <args>
+
+A simple ``yuno <args>`` would be much nicer. We'll use a stupid, brute-force alias because it makes things easy, but a symlink, ``%PATH%`` and ``%PATHEXT%``, or whatever you prefer should work as well. (A future version will remove this step. For now... sorry!)
+
+On Linux/OS X::
+
+    alias yuno='/path/to/compatible/python /path/to/yuno/yuno.py'
+
+On Windows::
+
+    :: Replace XX with your Python version - 27 for 2.7, 31 for 3.1, etc.
+    doskey yuno=C:\PythonXX\python.exe C:\path\to\yuno\yuno.py $*
+
+To make it permanent:
+
+- On Linux/OS X with Bash, add your command to ``~/.bashrc`` or similar.
+- On Windows, make a `special shortcut <http://devblog.point2.com/2010/05/14/setup-persistent-aliases-macros-in-windows-command-prompt-cmd-exe-using-doskey/>`_ for your ``cmd.exe``.
 

@@ -1,21 +1,19 @@
 Getting information
 ===================
 
-Most of the info Yuno keeps track of can be accessed with ``show``. It always takes one argument and ignores any options or flags.
+History and other info Yuno tracks is made available through ``yuno show``. It takes one argument and has no options.
 
-Signatures
-----------
+===========     ================================================
+argument        result
+===========     ================================================
+last            Recap of the last run
+failed          Tests that failed last run
+passed          Tests that passed last run
+failing         Tests that haven't passed since they last failed
+passing         Tests that haven't failed since they last passed
+skipped         Tests skipped last run
+warned          Tests that finished with nonzero status last run
+suites          A list of all suite folders and their contents
+===========     ================================================
 
-Tests that failed last time | tests that haven't passed since they last failed:
-``yuno show failed`` | ``failing``
 
-Tests that passed last time | tests that haven't failed since they last passed:
-``yuno show passed`` | ``passing``
-
-Tests that were skipped on the last run: ``yuno show skipped``
-
-Tests that raised warnings on the last run: ``yuno show warned``
-
-.. All available suites: ``yuno show suites``
-
-.. A detailed log of the last run: ``yuno show last``

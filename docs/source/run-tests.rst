@@ -1,12 +1,6 @@
 Running tests
 =============
 
-**Usage note:** For brevity, previous examples have assumed there was a PATH entry or alias named ``yuno`` for ``yuno.py``. While it's nicer to type and makes commands look cleaner, the examples here are written out in full for easy copy-pasting. Aliases are available in `Bash <http://www.thegeekstuff.com/2010/04/unix-bash-alias-examples/>`_ (Linux, OS X), `Windows <http://devblog.point2.com/2010/05/14/setup-persistent-aliases-macros-in-windows-command-prompt-cmd-exe-using-doskey/>`_, and most other shells.
-
-To run Yuno directly as ``yuno.py`` on non-Windows machines, you may need to make it executable::
-
-    $ chmod +x /your/project/yuno/yuno.py
-
 Signatures
 ----------
 
@@ -14,21 +8,33 @@ Signatures
 
    <br />
 
-``yuno.py run all`` | ``failed`` | ``failing`` | ``passed`` | ``passing`` | ``<glob>`` |br|\
-``yuno.py run phase <#>`` | ``check <#>`` | ``suite <name>`` | ``files <glob>`` |br|\
-``yuno.py run phase <#> check <#>`` |br|\
-``<newline-delimited stream> | yuno.py run -``
+.. |--| raw:: html
 
-Flags and options
------------------
+   --
 
-  1. ``--diff [routine]`` - Instead of the normal message, print a diff for any tests that fail. The routine can be ``context`` or ``unified``, defaulting to ``context``.
+``yuno run all`` | ``failed`` | ``failing`` | ``passed`` | ``passing`` | ``<glob>`` |br|\
+``yuno run phase <#>`` | ``check <#>`` | ``suite <name>`` | ``files <glob>`` |br|\
+``yuno run phase <#> check <#>`` |br|\
+``<newline-delimited stream> | yuno run -``
 
-  2. ``--pause [events]`` - Pause on certain events: ``p`` (test passed), ``f`` (failed), ``s`` (skipped), ``w`` (warned), or any combination (``pf``, ``fsw``, etc). Defaults to ``f``.
 
-  3. ``--save <name>`` - Save the tests that just ran as a suite called ``<name>``.
+Options
+-------
 
-  4. ``-o, --overwrite`` - Use with ``save`` to write over an existing suite with the same name.
+|--|\ diff [mode]
+    Print a diff for any tests that fail. The mode can be `context <http://en.wikipedia.org/wiki/Diff#Context_format>`_ or `unified <http://en.wikipedia.org/wiki/Diff#Unified_format>`_, defaulting to ``context``.
+
+|--|\ ignore [regex [regex ...]]
+    Don't run tests whose path (including filename) matches any given ``regex``. `Python-style <https://docs.python.org/2/library/re.html#regular-expression-syntax>`_ patterns; takes (?iLmsux) flags; backrefs can be named or ``\1``, ``\2``, etc.
+
+|--|\ pause [event(s)]
+    Pause on certain events: ``p`` (test passed), ``f`` (failed), ``s`` (skipped), ``w`` (warned), or any combination (``pf``, ``fsw``, etc). Defaults to ``f``.
+
+|--|\ save <name>
+    Save the tests that just ran as a suite called ``<name>``.
+
+-o, |--|\ overwrite
+    Use with ``save`` to write over an existing suite with the same name.
 
 Running by folder
 -----------------
@@ -37,15 +43,20 @@ If ``run`` receives one argument and it doesn't match a special value (all, -, f
 
 Every test in dir1/ or dir2/::
 
-    yuno.py run dir[1-2]
+    yuno run dir[1-2]
 
 Every test in every check ending in 2::
 
-    yuno.py run phase*/check*2
+    yuno run phase*/check*2
 
 Every test with a Companion Cube::
 
-    yuno.py run enrichment/chamber17
+    yuno run enrichment/chamber17
+
+.. note::
+   To better work with Windows, Yuno needs to handle its own glob expansion. Unix users should disable globbing for their session (Bash: ``set -f``) or quote arguments containing globs (``run "**/dir"``) if the shell's expander causes problems.
+
+.. _run-by-phase-and-check:
 
 By phase or check
 -----------------
@@ -56,39 +67,39 @@ Any test files inside matching folders or subfolders will be run.
 
 ::
 
-    yuno.py run phase 1-3
-    yuno.py run check 12
+    yuno run phase 1-3
+    yuno run check 12
 
     # If check alone would be ambiguous
-    yuno.py run phase 2 check 6a
+    yuno run phase 2 check 6a
 
 To support checks with multiple parts, ranges can slice on numbers and letters together. Each end may be one or more digits, optionally followed by a letter. For example, to run every test in every check between ``check6b`` and ``check10`` (inclusive)::
 
     # Runs 6b, 6c, 7, ... 9a, ..., 9z, ..., 10z
-    yuno.py run check 6b-10
+    yuno run check 6b-10
 
 **Note:** If you don't put in a range, Yuno looks for an exact match. Asking it to ``run check 3`` means asking it to run tests in a folder called ``check3``, not to run 3a, b, and c together.
 
 If you want to run them all, use::
 
-    yuno.py run check 3a-3c
+    yuno run check 3a-3c
 
 Or if you're lazy::
 
-    yuno.py run check 3a-c
+    yuno run check 3a-c
 
 Yuno always does its best to run no less than what you asked for, only skipping checks if they're specifically excluded by the range. A range endpoint without a letter will include that check and all its subparts. Any checks that fall inside the middle of the range are loaded fully, ``#`` to ``#z``.
 
 ::
 
     # 4, 4a, 4b, ..., 9, ..., 9d, 9e (but not 9f)
-    yuno.py run check 4-9e
+    yuno run check 4-9e
 
     # 5b, 5c, ..., 6, 6a (but not 5 or 5a)
-    yuno.py run check 5b-6a
+    yuno run check 5b-6a
 
     # 5, 5a, ..., 10, ..., 10z
-    yuno.py run check 5-10
+    yuno run check 5-10
 
 By status
 ---------
@@ -97,16 +108,16 @@ Like ``all``, ``passed``/``failed`` and ``passing``/``failing`` can be used to r
 
 Every test that passed (or failed) on the last run::
 
-    yuno.py run passed
-    yuno.py run failed
+    yuno run passed
+    yuno run failed
 
 Every test that hasn't passed since it last failed::
 
-    yuno.py run failing
+    yuno run failing
 
 Every test that hasn't failed since it last passed::
 
-    yuno.py run passing
+    yuno run passing
 
 
 By suite
@@ -116,13 +127,20 @@ Suites are arbitrary sets of tests, grouped together and named. They're handy fo
 
 To run a suite::
 
-    yuno.py run suite <name>
+    yuno run suite <name>
 
 To create a suite, either:
 
-  1. Use the ``--save`` flag with a name (``run <whatever> --save <name>``), which makes a suite from every test that ran this time; or
+- Use the ``--save`` flag with a name (``run <whatever> --save <name>``), which makes a suite from every test that ran this time; or
 
-  2. By hand, create ``<name>.txt`` in ``settings/suites/`` and add the path for every test you want, one per line (relative to the repo, and including the file name).
+- By hand, create ``<name>.txt`` in ``settings/suites/`` and add the path for every test you want: one per line, repo-relative, including the file name.
+
+For example, a finished suite accessible as ``pointers`` looks like this::
+
+    $ cat settings/suites/pointers.txt
+    phase2/check12/dereference-void.rc
+    phase3/check18/pass-pointer-by-reference.rc
+    sizeof/pointer-size.rc
 
 By filename
 -----------
@@ -131,23 +149,23 @@ For more precise control over which tests will run, use ``run files`` with a glo
 
 Only tests from people you trust::
 
-    yuno.py run files public/good/*-mallory.rc
+    yuno run files public/mallory/*.rc
 
-Let's see how it likes Haskell::
+Tests for printing 5 or fewer lines::
 
-    yuno.py run files phase1/**/*.hs
+    yuno run files **/cout/print[0-5].rc
 
-By pipe
--------
+From a pipe
+-----------
 
 If ``yuno run -`` sees text on ``stdin``, it treats it as a newline-separated list of test files and ignores any positional arguments. Options and flags will still be used if they make sense. See the Data section for more on how to use this to hack in some extra capability.
 
 To re-run every test that raised a warning last time::
 
     # Find lines that start with w, clean them up, and pipe to Yuno
-    $ grep ^w data/last-run.txt | sed 's/^w //' | yuno.py run -
+    $ grep ^w data/last-run.txt | sed 's/^w //' | yuno run -
 
 But no one likes sed, so Yuno knows to strip out its own line labels::
 
-    $ grep ^w data/last-run.txt | yuno.py run -
+    $ grep ^w data/last-run.txt | yuno run -
 
