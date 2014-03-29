@@ -42,7 +42,7 @@ def _run_regex(options, pattern):
 def _all_tests(test_class, options):
     """$ yuno run all
     """
-    message = "all tests in %s" % config.test_folder
+    message = "everything (%s)" % config.test_folder
     return (core.testing.load_all(test_class=test_class), message)
 
 
@@ -291,31 +291,37 @@ def build_harness(options, harness_class=core.testing.Harness):
         diff_routine=diff_routine, pause_controller=pauser)
 
 
-def load_and_run(
-        args,
-        harness=None,
-        test_class=None, test_set=None,
-        load_tests=None,
-        message=None):
+def load_tests(test_class, args):
+    return get_loader(args.command)(test_class, args)
+
+
+def run_tests(test_set, harness):
+    harness.run_set(test_set)
+    return harness
+
+
+def load_and_run(args, harness=None, test_class=None, loader=None, message=None):
     message = message or "Running {which_tests}: "
     harness = harness or build_harness(args)
+    test_set = []
+
+    test_class = test_class or core.testing.Test
+    loader = loader or load_tests
 
     try:
-        if test_set is None:
-            test_class = test_class or core.testing.Test
-            load_tests = load_tests or get_loader(args.command)
-
-            test_set, description = load_tests(test_class, args)
-            message = message.format(which_tests=description)
+        test_set, description = loader(test_class, args)
+        message = message.format(which_tests=description)
 
         print(message + '\n')
-        harness.run_set(test_set)
+        run_tests(test_set, harness)
 
+    # Might be thrown by the loader.
     except core.errors.SuiteLoadError as e:
         print(e.for_console())
         print("To see what suites are available, use:")
         print("    yuno.py show suites")
 
+    # Might be thrown by the harness.
     except core.errors.EmptyTestSet as e:
         print(e.for_console())
 
@@ -331,14 +337,26 @@ def load_and_run(
         #     print("To see its contents, use:")
         #     print("    yuno.py show suite {}".format(args.suite))
 
+    # Might be thrown by anything.
     except core.errors.YunoError as e:
         print(e.for_console())
 
     except KeyboardInterrupt:
         print("Run stopped. Results were not recorded.")
 
-    finally:
-        return harness, test_set or set()
+    return harness, test_set or []
+
+
+def _load_excluding_patterns(patterns):
+    def loader(test_class, args):
+        test_set, description = load_tests(test_class, args)
+
+        for p in patterns:
+            test_set = [t for t in test_set if not re.search(p, t.source.path)]
+
+        return test_set, description
+
+    return loader
 
 
 def main(argv):
@@ -348,7 +366,12 @@ def main(argv):
         parser.print_help()
         sys.exit(2)
 
-    harness, test_set = load_and_run(args)
+    if args.ignore_patterns is not None:
+        loader = _load_excluding_patterns(args.ignore_patterns)
+    else:
+        loader = load_tests
+    harness, test_set = load_and_run(args, loader=loader)
+
     if len(test_set) > 0:
         display_results(harness)
 
