@@ -266,14 +266,14 @@ def _display_results(harness):
         print("      View? yuno.py show warned")
 
     if num_regressions > 0:
-        print("\n- %d %s\n   " % (
+        print("\n- %d %s\n    " % (
             num_regressions,
             util.nice_plural(num_regressions, 'regression', 'regressions')),
             end='')
         print("\n    ".join([str(r) for r in sorted(harness.regressions)]))
 
     if num_fixes > 0:
-        print("\n+ %d fixed :)\n   " % num_fixes, end='')
+        print("\n+ %d fixed :)\n    " % num_fixes, end='')
         print("\n    ".join([str(f) for f in sorted(harness.fixes)]))
 
 
