@@ -1,0 +1,16 @@
+{
+    "success_message":
+        "../../../resources/default_project/templates/run/success.txt",
+
+    "failure_message":
+        "../../../resources/default_project/templates/run/failure.txt",
+
+    "diff_message":
+        "../../../resources/default_project/templates/run/failure-diff.txt",
+
+    "skip_message":
+        "../../../resources/default_project/templates/run/test-skipped.txt",
+
+    "warn_message":
+        "../../../resources/default_project/templates/run/warning.txt"
+}

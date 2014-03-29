@@ -1,3 +1,4 @@
+//
 // This is Yuno's main config file. The comments mean it's not quite valid JSON,
 // but excluding that the syntax is the same. If you've seen a JavaScript or
 // Python dictionary, you should be ok. Just keep the key names double-quoted
@@ -25,12 +26,12 @@
     // absolute or relative to yuno.py. If you followed the setup instructions
     // exactly, the default here is correct.
     //
-    "test_folder": "../testcases",
+    "test_folder": "'something inside ../fixtures/repos'",
 
     // Path to the data folder, either absolute or relative to yuno.py. Yuno
     // keeps its log files here.
     //
-    "data_folder": "data",
+    "data_folder": "scratch",
 
     // When loading named test suites, these folders will be checked in order
     // (left to right) until a matching suite is found. Suites created with
@@ -38,7 +39,7 @@
     //
     // Each path may be absolute or relative to yuno.py.
     //
-    "suite_folders": ["settings/suites"],
+    "suite_folders": ["fixtures/suites/suites1", "fixtures/suites/suites2"],
 
     // Test case source files (to be compiled) end with this extension.
     //
@@ -80,34 +81,5 @@
     // {testcase} - path/to/current/testcase.rc
     //
     "compiler_invocation":
-        "java -cp {classpath} {compiler_executable} {testcase}",
-
-
-    // Message templates -------------------------------------------------------
-
-
-    // Template for the message shown when a test passes.
-    // See settings/templates/success.txt.
-    //
-    "success_message": "settings/templates/success.txt",
-
-    // Template for the message shown when a test fails.
-    // See settings/templates/failure.txt.
-    //
-    "failure_message": "settings/templates/failure.txt",
-
-    // Template for the message shown when a test fails with a diff requested.
-    // See settings/templates/failure-diff.txt
-    //
-    "diff_message": "settings/templates/failure-diff.txt",
-
-    // Template for the message shown when a test is skipped.
-    // See settings/templates/test-skipped.txt.
-    //
-    "skip_message": "settings/templates/test-skipped.txt",
-
-    // Template for the message shown when something unexpected happens while a
-    // test is running. See settings/templates/warning.txt.
-    //
-    "warn_message": "settings/templates/warning.txt"
+        "python ../../../../../mock_compiler.py {testcase}"
 }

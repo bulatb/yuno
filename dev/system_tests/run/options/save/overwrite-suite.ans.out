@@ -1,4 +1,4 @@
-Running everything (dev/fixtures/repos/one-test):
+Running everything (fixtures/repos/one-test):
 
 PASS: [repo root]/1.testcase
 ================================================================================

@@ -1,7 +1,6 @@
 mode: output
 command: run all --save one-suite
 settings:
-  test_folder: dev/fixtures/repos/one-test
-  data_folder: dev/test_runs/target
-  suite_folders: dev/fixtures/suites/suites1
+  test_folder: fixtures/repos/one-test
+  suite_folders: fixtures/suites/suites1
   source_extension: .testcase

@@ -1,8 +1,6 @@
 mode: output
 command: run all --save new-suite
 settings:
-  test_folder: dev/fixtures/repos/one-test
-  data_folder: dev/test_runs/target
-  # The 'target' folder gets cleaned out after each run.
-  suite_folders: dev/test_runs/target
+  test_folder: fixtures/repos/one-test
+  suite_folders: scratch
   source_extension: .testcase

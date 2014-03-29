@@ -1,0 +1,34 @@
+//
+// Message templates
+// -----------------------------------------------------------------------------
+
+{
+    // Template for test output, shown when asking to confirm it's right.
+    // See templates/certify/result.txt.
+    //
+    // Special values:
+    //
+    //     {test_path} - test file's dirname
+    //     {test_name} - test file's filename
+    //     {output}    - test output
+    //
+    "result_message": "templates/certify/result.txt",
+
+    // Shown when something unexpected happens while a test is running.
+    // See templates/certify/warning.txt.
+    //
+    // Special values:
+    //
+    //     {message} - reason for the warning
+    //
+    "warn_message": "templates/certify/warning.txt",
+
+    // Shown when certifying tests which already have answers.
+    // See templates/certify/answer-exists.txt
+    //
+    // Special values:
+    //
+    //     {diff} - diff between this answer and existing
+    //
+    "existing_answer_message": "templates/certify/answer-exists.txt"
+}

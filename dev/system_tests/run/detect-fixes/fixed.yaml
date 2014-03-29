@@ -3,4 +3,4 @@ command: 'run check 2b-5'
 set:
   failing: 'shows-three-failing.log'
 settings:
-  test_folder: dev/fixtures/repos/131-project1-layout
+  test_folder: fixtures/repos/131-project1-layout

@@ -1,0 +1,30 @@
+//
+// Message templates
+// -----------------------------------------------------------------------------
+
+{
+    // Template for the message shown when a test passes.
+    // See templates/run/success.txt.
+    //
+    "success_message": "templates/run/success.txt",
+
+    // Template for the message shown when a test fails.
+    // See templates/run/failure.txt.
+    //
+    "failure_message": "templates/run/failure.txt",
+
+    // Template for the message shown when a test fails with a diff requested.
+    // See templates/run/failure-diff.txt
+    //
+    "diff_message": "templates/run/failure-diff.txt",
+
+    // Template for the message shown when a test is skipped.
+    // See templates/run/test-skipped.txt.
+    //
+    "skip_message": "templates/run/test-skipped.txt",
+
+    // Template for the message shown when something unexpected happens while a
+    // test is running. See templates/run/warning.txt.
+    //
+    "warn_message": "templates/run/warning.txt"
+}

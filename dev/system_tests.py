@@ -16,42 +16,37 @@ import yaml
 
 
 YUNO_HOME = normpath(join(abspath(dirname(__file__)), '..'))
-YUNO_CMD = join('.', 'yuno.py')
+DEV_DIR = join(YUNO_HOME, 'dev')
+
+HARNESS_PROJECT = join(YUNO_HOME, 'dev', 'projects', 'harness')
+TARGET_PROJECT = join(YUNO_HOME, 'dev', 'projects', 'target')
+
+PROJECT = join(YUNO_HOME, 'resources', 'default_project')
+YUNO_CMD = join(YUNO_HOME, 'yuno.py')
 
 CHECK_AGAINST_LOG = 'log'
 CHECK_AGAINST_OUTPUT = 'output'
 
-TESTER_LOG_DIR = 'dev/test_runs/tester'
-TARGET_LOG_DIR = 'dev/test_runs/target'
+TESTER_LOG_DIR = 'data'
+TARGET_LOG_DIR = 'scratch'
 
 
 def run_all_tests(args):
-    test_runner = join(YUNO_HOME, 'dev', 'system_tests.py')
-    args += [
-        '--with compiler_invocation "python %s --e2e {testcase}"' % test_runner,
-        '--with source_extension .yaml',
-        '--with test_folder dev/system_tests',
-        '--with data_folder ' + TESTER_LOG_DIR
-    ]
-
     try:
-        os.chdir(YUNO_HOME)
-        runner = subprocess.Popen('%s %s' % (YUNO_CMD,  ' '.join(args)),
-            # Use shell=True so the shell can read yuno's shebang and find py3.
-            # Windows installations may or may not have a `python3` that points
-            # to Python 3, but Python 3 on Windows has an automatic version
-            # switcher that can read shebangs. Invoking the .py is portable and
-            # lets that happen.
-            shell=True,
-            universal_newlines=True)
+        os.chdir(HARNESS_PROJECT)
+        runner = subprocess.Popen(
+            ['python', YUNO_CMD] + args, universal_newlines=True)
 
         while runner.poll() is None:
             sleep(1)
 
-
     except subprocess.CalledProcessError as e:
         print("Error launching test runner:")
         print(str(e.output), str(e.cmd))
+
+    except OSError as e:
+        print("Error launching test runner:")
+        print(str(e))
 
 
 def run_single_test(test_name):
@@ -61,14 +56,13 @@ def run_single_test(test_name):
         test_setup = yaml.load(system_test.read())
 
         mode = test_setup['mode']
-
         for log_name, log in test_setup.get('set', {}).items():
             _set_log_file(
-                join(YUNO_HOME, TARGET_LOG_DIR, log_name + '.txt'),
+                join(DEV_DIR, 'projects', 'target', 'scratch', log_name + '.txt'),
                 join(abspath_to_test, log))
 
     try:
-        os.chdir(YUNO_HOME)
+        os.chdir(TARGET_PROJECT)
         output = subprocess.check_output(
             ['python', YUNO_CMD] + _build_test_command(test_setup),
             universal_newlines=True)
@@ -92,27 +86,17 @@ def run_single_test(test_name):
 
 
 def _build_test_command(test_setup):
-    mock_compiler = '../../../mock_compiler.py'
-
-    default_settings = {
-        'compiler_invocation': '"python %s {testcase}"' % mock_compiler,
-        'data_folder': TARGET_LOG_DIR
-    }
-
-    settings = default_settings.copy()
-    settings_from_test = test_setup.get('settings', {})
+    command = shlex.split(test_setup['command'])
+    settings = test_setup.get('settings', {})
 
     # Checking every test's compiler_invocation for malicious code is not
     # acceptable, but running dozens of them without checking is too dangerous.
     # TODO: Think about a better way to solve this.
-    if 'compiler_invocation' in settings_from_test:
+    if 'compiler_invocation' in settings:
         raise ValueError('compiler_invocation not allowed in test settings')
 
-    settings.update(settings_from_test)
-
-    command = shlex.split(test_setup['command'])
-    for k, v in settings.items():
-        command.extend(['--with', k] + shlex.split(v))
+    for setting, value in settings.items():
+        command.extend(['--with', setting] + shlex.split(value))
 
     return command
 

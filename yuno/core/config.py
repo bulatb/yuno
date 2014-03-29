@@ -10,6 +10,9 @@ from yuno.core.errors import *
 from yuno.core.util import decomment_json
 
 
+GLOBAL_SETTINGS = 'settings/global.json'
+
+
 class ConfigNamespace(object):
     """A kind-of-smart container for config settings that can throw the right
     exceptions when something goes wrong. That way people know what they did
@@ -38,7 +41,7 @@ def load_json(filename):
 
 
 def load_default():
-    load_json('settings/config.json')
+    load_json(GLOBAL_SETTINGS)
 
 
 def set_from_dict(dict_):

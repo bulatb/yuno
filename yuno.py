@@ -1,20 +1,30 @@
 #!/usr/bin/env python
 
 import os
+from os.path import abspath, dirname, isfile, join, realpath
 import re
 import sys
+
+yuno_home = abspath(dirname(realpath(__file__)))
+sys.path.insert(0, yuno_home)
 
 from yuno.core import cli, config
 from yuno.core.util import working_dir
 
 
 def main(argv=None):
-    # Figure out where Yuno lives so plugins can cd correctly if they need to.
-    yuno_home = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
     config.update('YUNO_HOME', yuno_home)
+    args, subcommand_args = cli.get_cli_args()
 
-    with working_dir(yuno_home):
-        args, subcommand_args = cli.get_cli_args()
+    if args.command == cli.CREATE_PROJECT:
+        return create_project(subcommand_args)
+
+    project_home = get_project_home()
+
+    config.update('SHELL_WORKING_DIR', os.getcwd())
+    config.update('PROJECT_HOME', project_home)
+
+    with working_dir(project_home):
         load_settings(args.runtime_settings, args.command)
 
         program = __import__(
@@ -25,14 +35,34 @@ def main(argv=None):
         program.main(subcommand_args)
 
 
-def load_settings(runtime_settings, plugin_name):
-    plugin_name = re.sub('[^a-z0-9_]', '', plugin_name, flags=re.I)
-    plugin_settings_file = 'yuno/%s/settings/config.json' % plugin_name
+def create_project(args):
+    from yuno.init import init
+    init.main(args)
+
+
+def get_project_home():
+    cwd = os.getcwd()
+    is_project = lambda path: path and isfile(join(path, 'yuno-project.json'))
+    default_project = os.environ.get('YUNO_PROJECT')
+
+    if is_project(cwd):
+        return cwd
+    elif is_project(default_project):
+        return default_project
+    else:
+        sys.exit(
+            "Working path '%s' is not a Yuno project.\n" % cwd +
+            "Either cd to a project or set YUNO_PROJECT in your shell.")
+
+
+def load_settings(runtime_settings, module_name):
+    module_name = re.sub('[^a-z0-9_]', '', module_name, flags=re.I)
+    module_settings_file = 'settings/%s.json' % module_name
 
     config.load_default()
 
-    if os.path.isfile(plugin_settings_file):
-        config.load_json(plugin_settings_file)
+    if isfile(module_settings_file):
+        config.load_json(module_settings_file)
 
     for override in runtime_settings or []:
         key = override[0]

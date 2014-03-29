@@ -1,0 +1,90 @@
+//
+// This is Yuno's main config file. The comments mean it's not quite valid JSON,
+// but excluding that the syntax is the same. If you've seen a JavaScript or
+// Python dictionary, you should be ok. Just keep the key names double-quoted
+// and remember backslash (\) is a special character.
+//
+// If you do get parsing errors or some other kinds of nasties:
+//
+// 1. Curse loudly.
+// 2. Rage at Python's JSON parser for not giving better messages.
+// 3. If you're stuck, turn on syntax highlighting (JavaScript and Python
+// syntax work) and see if anything looks wrong. If you're extra stuck,
+// try diffing with the global.json.default in this folder.
+//
+// Except where noted, any path here may be absolute or project-relative.
+// If project-relative, it's relative to two dirs up - the project root
+// (../../global.json).
+// -----------------------------------------------------------------------------
+
+
+// Settings begin here. Happy hacking. :) --------------------------------------
+
+
+{
+    // Path to your test repo's root, absolute or project-relative. The default
+    // here is right if you exactly followed the directions.
+    //
+    "test_folder": "../testcases",
+
+    // Path to the data folder, absolute or project-relative. Yuno keeps its
+    // log files here.
+    //
+    "data_folder": "data",
+
+    // When loading named test suites, these folders will be checked in order
+    // (left to right) until a matching suite is found. Suites you make with
+    // --save will go into the leftmost folder only.
+    //
+    "suite_folders": ["suites"],
+
+    // Test case source files (to be compiled) end with this extension.
+    //
+    "source_extension": ".rc",
+
+    // Test case answer files (correct compiler output) end with this extension.
+    //
+    "answer_extension": ".ans.out",
+
+    // Test case output files (output from tests that failed, generated on
+    // request) end with this extension. This is currently not used.
+    //
+    "output_extension": ".my.out",
+
+    // Classpath used when running the compiler. Each path should be its own
+    // list item, absolute or **relative to test_folder**.
+    //
+    "compiler_classpath": ["../java-cup-v11a.jar", "../bin"],
+
+    // Name of the Java class that runs your compiler, in a form that's safe to
+    // pass as-is to `java`.
+    //
+    // Tl;DR NO ".class".
+    //
+    "compiler_executable": "RC",
+
+    // The command sent to your OS when it's time to run the compiler on a
+    // test case. Yuno won't expect a certain output or try to pipe it
+    // anywhere, so it's technically safe to do other stuff in here if you
+    // really need to. Please note that doing so would be Inviting Failure.
+    //
+    // ### NOTE:
+    //
+    //     The working path for this command will be test_folder.
+    //
+    // ### NOTE:
+    //
+    //     Using the -cp switch overrides your system's CLASSPATH setting.
+    //     If your system uses it to bring in JARs, like ieng9, then either
+    //     edit CLASSPATH and don't use -cp or edit the compiler_classpath
+    //     here - not both.
+    //
+    // {Placeholders} are expanded as follows:
+    //
+    // {classpath} - The classpath defined above, lovingly handmade for your OS.
+    // {compiler_executable} - As defined above.
+    // {testcase} - path/to/current/testcase.rc
+    //
+    "compiler_invocation":
+        "java -cp {classpath} {compiler_executable} {testcase}"
+}

@@ -55,17 +55,17 @@ class AnswerGeneratingHarness(core.testing.Harness):
         self.force_overwrite = force_overwrite
 
         self._result_message = self._load_template(
-            'settings/templates/certify-answer.txt',
+            config.result_message,
             default='TEST: {test_path}/{test_name}\n%sOutput below.\n%s\n%s' % (
                 '      ', ('-' * 80), '{output}'
             )
         )
         self._warn_message = self._load_template(
-            'settings/templates/certify-warning.txt',
+            config.warn_message,
             default=('=' * 80) + 'WARN: {message}' + ('=' * 80)
         )
         self._existing_answer_message = self._load_template(
-            'settings/templates/certify-existing-answer.txt',
+            config.existing_answer_message,
             default='NOTE: This test already has an answer file.\n{diff}'
         )
 

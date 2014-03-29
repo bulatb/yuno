@@ -10,6 +10,8 @@ DESCRIPTION = 'Compiler! Y U NO compile???'
 USAGE ="yuno.py [-h|--help] [--with key value [value ...]] command"
 HELP_COMMANDS = ('help', '-h', '--help')
 
+CREATE_PROJECT = 'init'
+
 
 def build_arg_parser():
     parser = argparse.ArgumentParser(
@@ -18,7 +20,7 @@ def build_arg_parser():
     parser.add_argument(
         'command',
         metavar='command',
-        choices=['run', 'show', 'certify', 'prune', 'compile', 'watch'],
+        choices=['run', 'show', 'certify', 'prune', 'compile', 'watch', 'init'],
         help='One of: %(choices)s')
 
     parser.add_argument(
