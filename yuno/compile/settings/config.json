@@ -1,4 +1,4 @@
-// Module-specific settings, loaded and used only by Flint. Each value set here
+// Module-specific settings, loaded and used only by Compile. Each value set here
 // overrides the value with the same name in the default settings.
 //
 // Yuno's main config file is in <yuno root>/settings.

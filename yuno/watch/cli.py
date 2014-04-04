@@ -8,14 +8,14 @@ def build_arg_parser():
         '--finish',
         dest='finish',
         action='store_true',
-        help='Recover from a network error. Use when instructed to by Flint.'
+        help='Recover from a network error. Use when told to by Compile.'
     )
 
     parser.add_argument(
         '--kill',
         dest='kill_running',
         action='store_true',
-        help='Kill all running instances of Steel.'
+        help='Kill all running instances of Watch.'
     )
 
     return parser

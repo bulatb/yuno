@@ -12,10 +12,6 @@ from . import diff_routines
 from . import text
 
 
-HARNESS = core.testing.Harness
-TEST_CLASS =  core.testing.Test
-
-
 def _build_regex_filter(regex):
     regex = re.compile(regex)
 
@@ -29,26 +25,6 @@ def _data_file(filename):
     return posixpath.join(config.data_folder, filename)
 
 
-# TODO: This function was designed before the diff feature was added. Having to
-# pass [options] sucks.
-def _run_tests(options, test_set=None, glob=None):
-    def pause_controller(test_result):
-        if test_result in (options.pause_on or []):
-            input("Paused. Press Enter to continue.\n")
-
-
-    if glob is not None:
-        test_set = core.testing.load_from_glob(glob, test_class=TEST_CLASS)
-
-    harness = HARNESS(
-        diff_routine=diff_routines.__dict__.get(options.diff_mode),
-        pause_controller=pause_controller if options.pause_on else None
-    )
-    harness.run_set(test_set or [])
-
-    return (harness, test_set)
-
-
 def _run_regex(options, pattern):
     """Runs every test in the repo whose path matches [pattern]. Expects a
     compiled regex.
@@ -60,63 +36,62 @@ def _run_regex(options, pattern):
         test_class=TEST_CLASS
     )
 
-    return _run_tests(options, test_set=test_set)
+    return run(harness, test)
 
 
-def _run_all(options):
+def _all_tests(test_class, options):
     """$ yuno run all
     """
-    print("Running all tests in %s\n" % config.test_folder)
-    return _run_tests(
-        options, test_set=core.testing.load_all(test_class=TEST_CLASS)
-    )
+    message = "all tests in %s" % config.test_folder
+    return (core.testing.load_all(test_class=test_class), message)
 
 
-def _run_glob(options):
+def _tests_matching_path_glob(test_class, options):
     """$ yuno run <glob>
     """
-    print("Running tests in {} and subfolders:\n".format(options.glob))
+    message = "tests in {} and subfolders".format(options.glob)
 
-    glob = options.glob.strip()
-    return _run_tests(
-        options, glob=posixpath.join(glob, '**', '*' + config.source_extension)
-    )
+    glob = posixpath.join(options.glob, '**', '*' + config.source_extension)
+    test_set = core.testing.load_from_glob(glob, test_class=test_class)
+
+    return (test_set, message)
 
 
-def _run_pipe(options):
+def _tests_from_pipe(test_class, options):
     """$ <stream> | yuno run -
     """
-    print("Running tests from pipe:\n")
+    message = "tests from pipe"
 
     test_set = core.testing.load_from_file(
-        sys.stdin, line_filter=util.strip_line_labels, test_class=TEST_CLASS
-    )
-    return _run_tests(options, test_set=test_set)
+        sys.stdin, line_filter=util.strip_line_labels, test_class=test_class)
+
+    return (test_set, message)
 
 
-def _run_phase(options):
+def _tests_in_phase(test_class, options):
     """$ yuno run phase <#>
     """
-    print("Running phase %s:\n" % options.phase)
+    message = "phase %s" % options.phase
 
     options.check = '*'
-    return _run_phase_and_check(options)
+    return (_tests_in_phase_and_check(test_class, options)[0], message)
 
 
-def _run_check(options):
+def _tests_in_check(test_class, options):
     """$ yuno run check <#>
     """
-    print("Running check %s:\n" % options.check)
+    message = "check %s" % options.check
 
     options.phase = '*'
-    return _run_phase_and_check(options)
+    return (_tests_in_phase_and_check(test_class, options)[0], message)
 
 
-def _run_phase_and_check(options):
+def _tests_in_phase_and_check(test_class, options):
     """$ yuno run phase <#> check <#>
     """
     phase = options.phase.strip() if options.phase else '*'
     check = options.check.strip() if options.check else '*'
+    message = "phase %s, check %s" % (phase, check)
     valid_arg = re.compile(r'^\d+[a-z]?(-\d+[a-z]?)?$|^\d+[a-z]-[a-z]$|^\*$')
     send_to_globber = re.compile(
         #  3, 12a      6a-c            6a-6c                 *
@@ -140,86 +115,92 @@ def _run_phase_and_check(options):
     if not send_to_globber.match(phase) or not send_to_globber.match(check):
         search_path = core.testing.build_regex(phase=phase, check=check)
         test_set = core.testing.load_by_walking(
-            search_path, test_class=TEST_CLASS
-        )
-        return _run_tests(options, test_set=test_set)
+            search_path, test_class=test_class)
+        return (test_set, message)
     else:
         glob = core.testing.build_glob(phase=phase, check=check)
-        return _run_tests(options, glob=glob)
+        test_set = core.testing.load_from_glob(glob, test_class=test_class)
+        return (test_set, message)
 
 
-def _run_failed(options):
+def _failed_tests(test_class, options):
     """$ yuno run failed
     """
     def is_failed(test_path):
         return test_path[2:] if test_path.startswith('f ') else False
 
 
-    print("Running tests that failed last time:\n")
+    message = "tests that failed last time"
 
     try:
         test_set = core.testing.load_from_file(
             _data_file('last-run.txt'),
             line_filter=is_failed,
-            test_class=TEST_CLASS)
-        return _run_tests(options, test_set=test_set)
+            test_class=test_class)
+        return (test_set, message)
     except core.errors.DataFileError as e:
         e.message = 'Unreadable or missing run log. Have you run any tests?'
         raise e
 
 
-def _run_failing(options):
+def _failing_tests(test_class, options):
     """$ yuno run failing
     """
-    print("Running all tests currently failing:\n")
-    return _run_suite(options, filename=_data_file('failing.txt'))
+    message = "all tests currently failing"
+    test_set = _tests_in_suite(
+        test_class, options, filename=_data_file('failing.txt'))[0]
+    return (test_set, message)
 
 
-def _run_passed(options):
+def _passed_tests(test_class, options):
     """$ yuno run passed
     """
     def is_passed(test_path):
         return test_path[2:] if test_path.startswith('p ') else False
 
 
-    print("Running all tests that passed last time:\n")
+    message = "all tests that passed last time"
 
     try:
         test_set = core.testing.load_from_file(
             _data_file('last-run.txt'),
             line_filter=is_passed,
-            test_class=TEST_CLASS)
-        return _run_tests(options, test_set=test_set)
+            test_class=test_class)
+        return (test_set, message)
     except core.errors.DataFileError as e:
         e.message = 'Unreadable or missing run log. Have you run any tests?'
         raise e
 
 
-def _run_passing(options):
+def _passing_tests(test_class, options):
     """$ yuno run passing
     """
-    print("Running all tests currently passing:\n")
-    return _run_suite(options, filename=_data_file('passing.txt'))
+    message = "all tests currently passing"
+    test_set = _tests_in_suite(
+        test_class, options, filename=_data_file('passing.txt'))[0]
+
+    return (test_set, message)
 
 
-def _run_files(options):
+def _tests_matching_file_glob(test_class, options):
     """$ yuno run files <glob>
     """
-    print("Running any test that matches {}:\n".format(options.files))
-    return _run_tests(options, glob=options.files.strip())
+    message = "any test that matches %s" % options.files
+    return (core.testing.load_from_glob(options.files), message)
 
 
-def _run_suite(options, filename=None):
+def _tests_in_suite(test_class, options, filename=None):
     """$ yuno run suite <name>
     """
     if filename is None:
         suite_name = options.suite.strip()
         suite = core.testing.Suite.from_name(suite_name)
-        print("Running {0} ({1.filename}):\n".format(suite_name, suite))
+        message = "{0} ({1.filename})".format(suite_name, suite)
     else:
+        message = filename
         suite = core.testing.Suite.from_file(filename)
 
-    return _run_tests(options, test_set=suite.tests)
+    return (suite.tests, message)
 
 
 def _save_suite(name, tests, overwrite=False):
@@ -238,7 +219,15 @@ def _save_suite(name, tests, overwrite=False):
         print("Please try again or check the permissions.")
 
 
-def _display_results(harness):
+def build_pauser(to_pause_on):
+    def pauser(test_result):
+        if test_result in to_pause_on:
+            input("Paused. Press Enter to continue.\n")
+
+    return pauser if to_pause_on is not None else None
+
+
+def display_results(harness):
     num_passed = len(harness.passed)
     num_failed = len(harness.failed)
     num_skipped = len(harness.skipped)
@@ -277,34 +266,50 @@ def _display_results(harness):
         print("\n    ".join([str(f) for f in sorted(harness.fixes)]))
 
 
-def main(argv=sys.argv):
-    args, parser = cli.get_cli_args(argv)
+def get_loader(command):
+    return {
+        cli.RUN_ALL: _all_tests,
+        cli.RUN_GLOB: _tests_matching_path_glob,
+        cli.RUN_PIPE: _tests_from_pipe,
+        cli.RUN_PHASE: _tests_in_phase,
+        cli.RUN_CHECK: _tests_in_check,
+        cli.RUN_PHASE_AND_CHECK: _tests_in_phase_and_check,
+        cli.RUN_FAILED: _failed_tests,
+        cli.RUN_FAILING: _failing_tests,
+        cli.RUN_PASSED: _passed_tests,
+        cli.RUN_PASSING: _passing_tests,
+        cli.RUN_FILES: _tests_matching_file_glob,
+        cli.RUN_SUITE: _tests_in_suite
+    }[command]
 
-    if args.command is None:
-        parser.print_help()
-        sys.exit(2)
 
-    command_handlers = {
-        cli.RUN_ALL: _run_all,
-        cli.RUN_FAILED: _run_failed,
-        cli.RUN_FAILING: _run_failing,
-        cli.RUN_PASSED: _run_passed,
-        cli.RUN_PASSING: _run_passing,
-        cli.RUN_GLOB: _run_glob,
-        cli.RUN_PHASE: _run_phase,
-        cli.RUN_CHECK: _run_check,
-        cli.RUN_PHASE_AND_CHECK: _run_phase_and_check,
-        cli.RUN_SUITE: _run_suite,
-        cli.RUN_FILES: _run_files,
-        cli.RUN_PIPE: _run_pipe
-    }
+def build_harness(options, harness_class=core.testing.Harness):
+    diff_routine = diff_routines.__dict__.get(options.diff_mode)
+    pauser = build_pauser(options.pause_on)
+
+    return harness_class(
+        diff_routine=diff_routine, pause_controller=pauser)
+
+
+def load_and_run(
+        args,
+        harness=None,
+        test_class=None, test_set=None,
+        load_tests=None,
+        message=None):
+    message = message or "Running {which_tests}: "
+    harness = harness or build_harness(args)
 
     try:
-        harness, test_set = command_handlers[args.command](args)
-        _display_results(harness)
+        if test_set is None:
+            test_class = test_class or core.testing.Test
+            load_tests = load_tests or get_loader(args.command)
 
-        if args.save_as:
-            _save_suite(args.save_as, test_set, overwrite=args.overwrite)
+            test_set, description = load_tests(test_class, args)
+            message = message.format(which_tests=description)
+
+        print(message + '\n')
+        harness.run_set(test_set)
 
     except core.errors.SuiteLoadError as e:
         print(e.for_console())
@@ -331,3 +336,21 @@ def main(argv=sys.argv):
 
     except KeyboardInterrupt:
         print("Run stopped. Results were not recorded.")
+
+    finally:
+        return harness, test_set or set()
+
+
+def main(argv):
+    args, parser = cli.get_cli_args(argv)
+
+    if args.command is None:
+        parser.print_help()
+        sys.exit(2)
+
+    harness, test_set = load_and_run(args)
+    if len(test_set) > 0:
+        display_results(harness)
+
+    if args.save_as:
+        _save_suite(args.save_as, test_set, overwrite=args.overwrite)

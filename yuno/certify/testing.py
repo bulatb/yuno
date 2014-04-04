@@ -31,8 +31,9 @@ class NaiveTest(core.testing.Test):
         )
 
         try:
-            output = subprocess.check_output(compile_command, shell=True)
-            harness.test_passed(self, output.decode('utf-8'))
+            output = subprocess.check_output(
+                compile_command, shell=True, universal_newlines=True)
+            harness.test_passed(self, output)
         except subprocess.CalledProcessError as e:
             harness.test_passed(self, e.output)
             harness.test_warned(
