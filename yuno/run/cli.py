@@ -130,7 +130,7 @@ def build_arg_parser():
         nargs='+',
         help='Don\'t run tests whose path (including filename) matches any \
         <regex>. Python-style patterns; takes (?iLmsux) flags; backrefs can \
-        be named or \1, \2, etc.'
+        be named or \\1, \\2, etc.'
     )
 
     return parser

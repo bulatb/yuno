@@ -3,19 +3,22 @@
 """
 
 import argparse
+import sys
 
 
 DESCRIPTION = 'Compiler! Y U NO compile???'
-HELP = 'help'
+USAGE ="yuno.py [-h|--help] [--with key value [value ...]] command"
+HELP_COMMANDS = ('help', '-h', '--help')
 
 
 def build_arg_parser():
-    parser = argparse.ArgumentParser(add_help=False)
+    parser = argparse.ArgumentParser(
+        usage=USAGE, add_help=False)
 
     parser.add_argument(
         'command',
         metavar='command',
-        choices=[HELP, 'run', 'show', 'certify', 'prune', 'compile', 'watch'],
+        choices=['run', 'show', 'certify', 'prune', 'compile', 'watch'],
         help='One of: %(choices)s')
 
     parser.add_argument(
@@ -25,7 +28,7 @@ def build_arg_parser():
         dest='runtime_settings',
         metavar=('key value', 'value'),
         help='Change configuration setting <key> to <value> for this run. Use \
-        zero or more times, one `--with` per setting. If the setting is a \
+        zero or more times, one \'--with\' per setting. If the setting is a \
         list, add one <value> for each item.')
 
     return parser
@@ -50,10 +53,10 @@ def variadic_list_action(min_length=2):
 
 def get_cli_args():
     parser = build_arg_parser()
-    launcher_args, plugin_args = parser.parse_known_args()
 
-    if launcher_args.command in (HELP, '-h', '--help'):
+    if sys.argv[1] in HELP_COMMANDS:
         parser.print_help()
         parser.exit()
 
+    launcher_args, plugin_args = parser.parse_known_args()
     return launcher_args, plugin_args
