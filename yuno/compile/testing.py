@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import os
 from posixpath import join as path_from
 import shutil

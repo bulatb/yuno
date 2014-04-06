@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 """Classes for defining, loading, and running tests.
 
 """
@@ -470,7 +472,7 @@ def load_all(test_class=Test, filter_fn=None):
                     )
 
     if filter_fn:
-        return filter(filter_fn, tests)
+        return sorted(filter(filter_fn, tests))
 
     return sorted(tests)
 

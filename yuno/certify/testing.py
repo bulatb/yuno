@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import difflib
 import os
 import re
@@ -9,10 +11,13 @@ from yuno.core import errors, util
 from yuno.core.config import config
 
 
+_read_input = raw_input if sys.version_info[0] == 2 else input
+
+
 def _prompt(message):
-    answer = input(message)
+    answer = _read_input(message)
     while answer not in ('y', 'n'):
-        answer = input(message)
+        answer = _read_input(message)
 
     return answer
 

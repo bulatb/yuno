@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import sys
 
 from yuno.run import cli as run_cli, run
