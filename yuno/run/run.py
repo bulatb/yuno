@@ -207,7 +207,7 @@ def _tests_in_suite(test_class, options, filename=None):
     return (suite.tests, message)
 
 
-def _save_suite(name, tests, overwrite=False):
+def save_suite(name, tests, overwrite=False):
     filename = posixpath.join(config.suite_folders[0], name + '.txt')
 
     if os.path.isfile(filename) and not overwrite:
@@ -369,8 +369,10 @@ def main(argv):
 
     harness, test_set = load_and_run(args)
 
-    if len(test_set) > 0:
-        display_results(harness)
+    if len(test_set) < 1:
+        return
 
-    if args.save_as:
-        _save_suite(args.save_as, test_set, overwrite=args.overwrite)
+    display_results(harness)
+
+    if args.save_as is not None:
+        save_suite(args.save_as, test_set, overwrite=args.overwrite)
