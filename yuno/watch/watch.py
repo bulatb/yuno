@@ -21,7 +21,6 @@ class WatchTest(testing.Test):
 
 
     def run_in_harness(self, harness):
-        print(self.source.path, self.source.path + '.most-recent')
         shutil.copyfile(self.source.path, self.source.path + '.most-recent')
         super(WatchTest, self).run_in_harness(harness)
 
@@ -32,35 +31,6 @@ def _finish_current_run():
         donefile.close()
     except OSError:
         print("Hmm... something went wrong. Try again?")
-
-
-def _kill_running():
-    print("Killing running instances of Watch.")
-
-    pid_filename = posixpath.join(settings.data_folder, 'pids.txt')
-    killed = 0
-
-    with open(pid_filename, 'r') as pids:
-        for line in pids:
-            pid = line.strip()
-            print('kill -9 {}... '.format(pid), end='')
-
-            try:
-                subprocess.check_call('kill -9 ' + line.strip())
-                print('done.')
-                killed += 1
-            except subprocess.CalledProcessError as e:
-                print('failed. Exit code ' + str(e.returncode))
-
-    with open(pid_filename, 'w+'):
-        pass
-
-    print("Done. Killed " + str(killed))
-
-
-def _record_pid():
-    with open(posixpath.join(settings.data_folder, 'pids.txt'), 'a+') as pids:
-        pids.writelines([str(os.getpid()) + '\n'])
 
 
 def _delete_assembly():
@@ -103,8 +73,6 @@ def main(argv=sys.argv):
     try:
         if options.finish:
             _finish_current_run()
-        elif options.kill_running:
-            _kill_running()
         else:
             _watch_for_files(options)
     except KeyboardInterrupt:
