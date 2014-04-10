@@ -1,5 +1,6 @@
 from __future__ import print_function
 
+from functools import partial
 import os
 import posixpath
 import re
@@ -308,7 +309,7 @@ def load_and_run(args, harness=None, test_class=None, loader=None, message=None)
     test_set = []
 
     test_class = test_class or core.testing.Test
-    loader = loader or load_tests
+    loader = loader or partial(_load_excluding_patterns, args.ignore_patterns)
 
     try:
         test_set, description = loader(test_class, args)
@@ -349,16 +350,13 @@ def load_and_run(args, harness=None, test_class=None, loader=None, message=None)
     return harness, test_set or []
 
 
-def _load_excluding_patterns(patterns):
-    def loader(test_class, args):
-        test_set, description = load_tests(test_class, args)
+def _load_excluding_patterns(patterns, test_class, args):
+    test_set, description = load_tests(test_class, args)
 
-        for p in patterns:
-            test_set = [t for t in test_set if not re.search(p, t.source.path)]
+    for p in patterns or []:
+        test_set = [t for t in test_set if not re.search(p, t.source.path)]
 
-        return test_set, description
-
-    return loader
+    return test_set, description
 
 
 def main(argv):
@@ -368,11 +366,7 @@ def main(argv):
         parser.print_help()
         sys.exit(2)
 
-    if args.ignore_patterns is not None:
-        loader = _load_excluding_patterns(args.ignore_patterns)
-    else:
-        loader = load_tests
-    harness, test_set = load_and_run(args, loader=loader)
+    harness, test_set = load_and_run(args)
 
     if len(test_set) > 0:
         display_results(harness)
