@@ -54,7 +54,7 @@ def variadic_list_action(min_length=2):
 def get_cli_args():
     parser = build_arg_parser()
 
-    if sys.argv[1] in HELP_COMMANDS:
+    if len(sys.argv) > 1 and sys.argv[1] in HELP_COMMANDS:
         parser.print_help()
         parser.exit()
 
