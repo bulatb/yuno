@@ -83,7 +83,11 @@ def _watch_for_files(options):
             os.remove(donefile)
 
             print("Found new tests.\n", "=" * 80, sep="\n")
-            run.load_and_run(args, test_class=WatchTest)
+
+            harness, test_set = run.load_and_run(args, test_class=WatchTest)
+            if len(test_set) > 0:
+                run.display_results(harness)
+
             _delete_assembly()
 
             print("")
