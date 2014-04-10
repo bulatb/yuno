@@ -1,34 +1,42 @@
 // This is Yuno's main config file. The comments mean it's not quite valid JSON,
-// but excluding that the syntax is the same. If you're familiar with JavaScript
-// or Python's dictionaries, you should be good to go. Just make sure you
-// double-quote the key names.
+// but excluding that the syntax is the same. If you've seen a JavaScript or
+// Python dictionary, you should be ok. Just keep the key names double-quoted
+// and remember backslash (\) is a special character.
 //
 // If you do get parsing errors or some other kinds of nasties:
 //
 // 1. Curse loudly.
-// 2. Rage at Python's JSON parser for not giving better errors.
+// 2. Rage at Python's JSON parser for not giving better messages.
 // 3. If you're stuck, turn on syntax highlighting (JavaScript and Python syntax
-//    both work in a pinch) and see if anything looks wrong. If you're *really*
-//    stuck, you can diff against config.json.default in this folder.
+//    both work in a pinch) and see if anything looks wrong. If you're extra
+//    stuck, try diffing against config.json.default in this folder.
 //
 // Unless otherwise noted, all relative paths in this file are relative to
 // Yuno's home folder. It should be ../../ if you haven't moved this file. And
-// if you have... Yuno has stopped working, so you should put it back.
+// if you have, Yuno has stopped working. You should put it back.
+// -----------------------------------------------------------------------------
 
 
 // Directives begin here. Happy hacking. :) ------------------------------------
 
 
 {
-    // The path to the top-level folder that contains the test cases, relative
-    // to yuno.py. If you followed the setup instructions exactly, the default
-    // here is correct.
+    // Path to the top-level folder that contains the test cases, either
+    // absolute or relative to yuno.py. If you followed the setup instructions
+    // exactly, the default here is correct.
     //
     "test_folder": "../testcases",
+
+    // Path to the data folder, either absolute or relative to yuno.py. Yuno
+    // keeps its log files here.
+    //
+    "data_folder": "data",
 
     // When loading named test suites, these folders will be checked in order
     // (left to right) until a matching suite is found. Suites created with
     // yuno run ... --save will go into the leftmost folder only.
+    //
+    // Each path may be absolute or relative to yuno.py.
     //
     "suite_folders": ["settings/suites"],
 
@@ -47,7 +55,7 @@
     "output_extension": ".my.out",
 
     // Classpath used when running the compiler. Each path should be its own
-    // list item.
+    // list item, absolute or relative to test_folder.
     //
     "compiler_classpath": ["../java-cup-v11a.jar", "../bin"],
 
@@ -63,13 +71,13 @@
     // anywhere, so it's technically safe to do other stuff in here if you
     // really need to. Please note that doing so would be Inviting Failure.
     //
-    // NOTE: This will be run from the test repo's root folder, not from Yuno's.
+    // ### NOTE: The working path for this command will be test_folder.
     //
     // {Placeholders} are expanded as follows:
     //
     // {classpath} - The classpath defined above, lovingly handmade for your OS.
     // {compiler_executable} - As defined above.
-    // {testcase} - /path/to/current/testcase.rc
+    // {testcase} - path/to/current/testcase.rc
     //
     "compiler_invocation":
         "java -cp {classpath} {compiler_executable} {testcase}",
