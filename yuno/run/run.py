@@ -189,7 +189,8 @@ def _tests_matching_file_glob(test_class, options):
     """$ yuno run files <glob>
     """
     message = "any test that matches %s" % options.files
-    return (core.testing.load_from_glob(options.files), message)
+    return (core.testing.load_from_glob(
+        options.files, test_class=test_class), message)
 
 
 def _tests_in_suite(test_class, options, filename=None):
@@ -197,11 +198,11 @@ def _tests_in_suite(test_class, options, filename=None):
     """
     if filename is None:
         suite_name = options.suite.strip()
-        suite = core.testing.Suite.from_name(suite_name)
+        suite = core.testing.Suite.from_name(suite_name, test_class=test_class)
         message = "{0} ({1.filename})".format(suite_name, suite)
     else:
         message = filename
-        suite = core.testing.Suite.from_file(filename)
+        suite = core.testing.Suite.from_file(filename, test_class=test_class)
 
     return (suite.tests, message)
 

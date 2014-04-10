@@ -356,22 +356,22 @@ class Harness(object):
 
 
 class Suite(object):
-    @classmethod
-    def from_file(cls, filename):
+    @staticmethod
+    def from_file(filename, test_class=Test):
         try:
             suite_name = os.path.basename(filename).replace('.txt', '')
-            tests = load_from_file(filename)
+            tests = load_from_file(filename, test_class=test_class)
             return Suite(suite_name, filename, tests)
         except IOError:
             raise errors.SuiteLoadError(filename)
 
 
-    @classmethod
-    def from_name(cls, name):
+    @staticmethod
+    def from_name(name, test_class=Test):
         for folder in config.suite_folders:
             filename = posixpath.join(folder, name + '.txt')
             if os.path.isfile(filename):
-                return Suite.from_file(filename)
+                return Suite.from_file(filename, test_class=test_class)
 
         raise errors.SuiteLoadError(name)
 
