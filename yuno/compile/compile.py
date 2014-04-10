@@ -16,7 +16,7 @@ def main(argv):
         args,
         harness=AssemblyGenerator(),
         test_class=AssemblyWritingTest,
-        message="Compiling {which_tests}: ")
+        message="Compiling {which_tests}:")
 
     print("")
     print("=" * 80)

@@ -216,7 +216,7 @@ def _save_suite(name, tests, overwrite=False):
 
     try:
         core.testing.Suite(name, filename, tests).save()
-        print("\nSaved these tests as %s (%s.txt).".format(
+        print("\nSaved these tests as {} ({}.txt).".format(
             name, posixpath.join(config.suite_folders[0], name)))
     except core.errors.SuiteSaveError as e:
         print(e.for_console())
@@ -305,7 +305,7 @@ def run_tests(test_set, harness):
 
 
 def load_and_run(args, harness=None, test_class=None, loader=None, message=None):
-    message = message or "Running {which_tests}: "
+    message = message or "Running {which_tests}:"
     harness = harness or build_harness(args)
     test_set = []
 
