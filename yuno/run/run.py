@@ -241,22 +241,22 @@ def display_results(harness):
     total = num_passed + num_failed + num_skipped
 
     print("=" * 80)
-    print("Ran %d tests\n" % total)
+    print("Ran %d %s\n" % (total, util.nice_plural(total, 'test', 'tests')))
     print("  %d passed" % num_passed)
     print("  %d failed" % num_failed)
 
     if num_failed > 0:
-        print("      View?   yuno.py show failed")
-        print("      Re-run? yuno.py run failed")
+        print("      View?   yuno show failed")
+        print("      Re-run? yuno run failed")
         # note about diff files goes here
 
     if num_skipped > 0:
         print("  %d skipped" % num_skipped)
-        print("      View? yuno.py show skipped")
+        print("      View? yuno show skipped")
 
     if num_warned > 0:
         print("  %d warned" % num_warned)
-        print("      View? yuno.py show warned")
+        print("      View? yuno show warned")
 
     if num_regressions > 0:
         print("\n- %d %s\n    " % (
@@ -323,7 +323,7 @@ def load_and_run(args, harness=None, test_class=None, loader=None, message=None)
     except core.errors.SuiteLoadError as e:
         print(e.for_console())
         print("To see what suites are available, use:")
-        print("    yuno.py show suites")
+        print("    yuno show suites")
 
     # Might be thrown by the harness.
     except core.errors.EmptyTestSet as e:
@@ -331,7 +331,7 @@ def load_and_run(args, harness=None, test_class=None, loader=None, message=None)
 
         if args.command == cli.RUN_GLOB:
             print("To run specific tests, use:")
-            print("    yuno.py run files path/to/test*.rc")
+            print("    yuno run files path/to/test*.rc")
 
         commands_using_globs = (cli.RUN_GLOB, cli.RUN_FILES)
         if args.command in commands_using_globs and os.name == 'posix':
