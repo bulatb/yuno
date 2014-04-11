@@ -6,7 +6,7 @@ Configuration
 
 The settings you can change are documented and defined in ``settings/config.json``. Yuno comes pre-configured to work with the standard repo layout described above, but you're free to use whatever you prefer. The defaults are saved in ``settings/config.json.default``.
 
-Except for comments (lines starting with ``//``), the config syntax is `standard JSON <http://en.wikipedia.org/wiki/JSON#Data_types.2C_syntax_and_example>`_. Intrepid editors will find that Yuno's comment stripping code is very stupid, so comments at the ends of lines . Complaints may be addressed to:
+Except for comments, lines starting with ``//``, the syntax is `standard JSON <http://en.wikipedia.org/wiki/JSON#Data_types.2C_syntax_and_example>`_. Intrepid editors will find that Yuno's comment stripping code is very stupid, and putting comments at the ends of lines is just a fancy way to break it. Complaints may be addressed to:
 
 | ATTN: Roundfile Group
 | 127 Wontfix Road
