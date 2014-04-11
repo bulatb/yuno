@@ -1,7 +1,6 @@
 import argparse
-import help
 
-import diff_routines
+from . import diff_routines, help
 
 
 RUN_ALL = 'all'
@@ -28,52 +27,57 @@ class OverloadedArg(argparse.Action):
         num_values = len(values)
         command = None
 
-        # Let's not get all polymorphic here.
-        # Explicit is better.
-
         if num_values == 1:
             if values[0] in ONE_ARG_COMMANDS:
                 command = values[0]
-            # if values[0] == RUN_ALL:
-            #     command = RUN_ALL
-            # elif values[0] == RUN_FAILED:
-            #     command = RUN_FAILED
-            # elif values[0] == RUN_FAILING:
-            #     command = RUN_FAILING
-            # elif values[0] == RUN_PASSED:
-            #     command = RUN_PASSED
-            # elif values[0] == RUN_PASSING:
-            #     command = RUN_PASSING
-            # elif values[0] == RUN_PIPE:
-            #     command = RUN_PIPE
-            else: # it's a glob
+            else:
+                # It's a glob.
                 command = RUN_GLOB
                 setattr(namespace, 'glob', values[0])
         elif num_values == 2:
+            # Example:
+            #
+            # `yuno run phase 1` will make a namespace like this:
+            #     (command='run', phase='1', ...)
+            #
+            # where <command> is <values[0]> and a field named <values[0]> is
+            # <values[1]>. The <command> is used for routing to a handler
+            # which will read <values[1]> from a key named <values[0]>.
+            #
+            # TODO: This maybe shouldn't need a comment to be clear.
+            argument, value = values
+            setattr(namespace, argument, value)
 
-            if values[0] == RUN_PHASE:
-                command = RUN_PHASE
-                setattr(namespace, 'phase', values[1])
-            elif values[0] == RUN_CHECK:
-                command = RUN_CHECK
-                setattr(namespace, 'check', values[1])
-            elif values[0] == RUN_FILES:
-                command = RUN_FILES
-                setattr(namespace, 'files', values[1])
-            elif values[0] == RUN_SUITE:
-                command = RUN_SUITE
-                setattr(namespace, 'suite', values[1])
+            command = values[0]
         elif num_values == 4:
             if values[0] == RUN_PHASE and values[2] == RUN_CHECK:
                 command = RUN_PHASE_AND_CHECK
                 setattr(namespace, 'phase', values[1])
                 setattr(namespace, 'check', values[3])
+            else:
+                parser.error("Expected `phase <#> check <#>`; got `%s`" % (
+                    ' '.join(values)))
+        else:
+            num_shown = 6
+            num_hidden = num_values - num_shown
+            shown_values = values[:num_shown]
+
+            message = "Expected 1, 2, or 4 arguments; got %d: %s" % (
+                num_values, ' '.join(shown_values))
+
+            if num_hidden > 0:
+                message += " [... %d more]" % num_hidden
+
+            parser.error(message)
 
         setattr(namespace, 'command', command)
 
 
 def build_arg_parser():
-    parser = argparse.ArgumentParser(usage=help.usage)
+    parser = argparse.ArgumentParser(
+        usage=help.usage,
+        description=help.description,
+        formatter_class=argparse.RawDescriptionHelpFormatter)
 
     parser.add_argument(
         'command',
@@ -117,6 +121,16 @@ def build_arg_parser():
         help='''Pause on certain events: p (test passed), f (test failed),
         s (test skipped), w (test warned), or any combination (pf, fsw, etc).
         Defaults to f.'''
+    )
+
+    parser.add_argument(
+        '-I', '--ignore',
+        dest='ignore_patterns',
+        metavar='regex',
+        nargs='+',
+        help='Don\'t run tests whose path (including filename) matches any \
+        <regex>. Python-style patterns; takes (?iLmsux) flags; backrefs can \
+        be named or \\1, \\2, etc.'
     )
 
     return parser

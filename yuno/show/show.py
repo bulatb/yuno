@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import os
 import re
 import sys
@@ -8,11 +10,11 @@ from os.path import isfile
 from yuno.core import history, util, errors
 from yuno.core.config import config
 
-import cli
+from . import cli, text
 
 
 def _in_data_folder(filename):
-    return posixpath.join('data', filename)
+    return posixpath.join(config.data_folder, filename)
 
 
 def _show_file(filename, line_indent='  ', sort=True):
@@ -23,7 +25,7 @@ def _show_file(filename, line_indent='  ', sort=True):
             for line in (sorted(data_file) if sort else data_file):
                 line = line.strip()
                 if line != '':
-                    print line_indent + line
+                    print(line_indent + line)
                     lines_read += 1
 
     return lines_read
@@ -38,13 +40,13 @@ def _show_by_type(result_type, line_indent='  '):
     message = util.nice_plural(num_of_type, 'test', 'tests')
 
     if num_of_type == 0:
-        print "No {} {} last run ({})".format(message, result_type, when)
+        print("No {} {} last run ({})".format(message, result_type, when))
         return
 
-    print "%s last run:\n" % result_type.capitalize()
+    print("%s last run:\n" % result_type.capitalize())
     for test in sorted(tests):
-        print line_indent + test.strip()
-    print "\n%d %s %s, %s" % (num_of_type, message, result_type, when)
+        print(line_indent + test.strip())
+    print("\n%d %s %s, %s" % (num_of_type, message, result_type, when))
 
 
 def _show_failed():
@@ -52,9 +54,9 @@ def _show_failed():
 
 
 def _show_failing():
-    print "All failing:\n"
+    print("All failing:\n")
     count = _show_file(_in_data_folder('failing.txt'))
-    print "\n%d %s" % (count, util.nice_plural(count, 'test', 'tests'))
+    print("\n%d %s" % (count, util.nice_plural(count, 'test', 'tests')))
 
 
 def _show_passed():
@@ -62,9 +64,9 @@ def _show_passed():
 
 
 def _show_passing():
-    print "All passing:\n"
+    print("All passing:\n")
     count = _show_file(_in_data_folder('passing.txt'))
-    print "\n%d %s" % (count, util.nice_plural(count, 'test', 'tests'))
+    print("\n%d %s" % (count, util.nice_plural(count, 'test', 'tests')))
 
 
 def _show_skipped():
@@ -81,25 +83,24 @@ def _show_suites():
 
     folders = config.suite_folders
 
-    print "All suites:\n"
+    print("All suites:\n")
 
     for folder in folders:
-        print "  " + with_trailing_slash(folder)
+        print("  " + with_trailing_slash(folder))
         num_found = 0
 
         for entry in sorted(os.listdir(folder)):
             if entry.endswith('.txt') and isfile(os.path.join(folder, entry)):
                 num_found += 1
-                print "    " + re.sub(r'\.txt$', '', entry)
+                print("    " + re.sub(r'\.txt$', '', entry))
 
         if num_found == 0:
-            print "    (none)"
+            print("    (none)")
 
-        print "\n",
+        print("")
 
     if len(folders) > 1:
-        print "Suite folders are searched in the order above, top to bottom."
-        print "Ones you make with --save go in the first."
+        print(text.SEARCH_ORDER)
 
 
 def _show_last():
@@ -107,9 +108,9 @@ def _show_last():
 
 
 def main(argv=sys.argv):
-    options, parser = cli.get_cli_args(argv)
+    args, parser = cli.get_cli_args(argv)
 
-    if options.what is None:
+    if args.what is None:
         parser.print_help()
         sys.exit(2)
 
@@ -125,8 +126,8 @@ def main(argv=sys.argv):
     }
 
     try:
-        command_handlers[options.what]()
+        command_handlers[args.what]()
     except errors.YunoError as e:
-        print e.for_console()
+        print(e.for_console())
     except KeyboardInterrupt:
-        print "Stopped."
+        print("Stopped.")

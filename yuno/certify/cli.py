@@ -1,6 +1,6 @@
 import argparse
 
-import help
+from . import help
 
 
 CERTIFY_FILES = 'files'
@@ -21,7 +21,10 @@ class OverloadedArg(argparse.Action):
 
 
 def build_arg_parser():
-    parser = argparse.ArgumentParser(usage=help.usage)
+    parser = argparse.ArgumentParser(
+        usage=help.usage,
+        description=help.description,
+        formatter_class=argparse.RawDescriptionHelpFormatter)
 
     parser.add_argument(
         'command',

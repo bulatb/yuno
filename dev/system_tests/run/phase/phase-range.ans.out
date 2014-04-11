@@ -1,0 +1,30 @@
+
+0 regressions
+
+................................................................................
+0 fixes
+
+................................................................................
+10 passed
+p phase1/check1/is-it-compile.rc
+p phase1/check2b/two-b.rc
+p phase1/check2c/2c.rc
+p phase1/check2z/zzz.rc
+p phase1/check3a/3a.rc
+p phase1/check5/check5.rc
+p phase2/check10/check10.rc
+p phase2/check11a/check11a.rc
+p phase2/check11b/check11b.rc
+p phase2/check99/check99.rc
+................................................................................
+3 failed
+f phase1/check1/such-test-case.rc
+f phase1/check2a/favrits.rc
+f phase1/check3b/3b.rc
+................................................................................
+1 skipped
+s phase1/check1/no-answer.rc
+................................................................................
+1 warned
+w phase1/check2a/favrits.rc
+................................................................................

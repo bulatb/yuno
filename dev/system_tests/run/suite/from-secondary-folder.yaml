@@ -1,0 +1,6 @@
+mode: log
+command: 'run suite another-suite'
+settings:
+  test_folder: dev/fixtures/repos/131-project1-layout
+  data_folder: dev/test_runs/target
+  suite_folders: 'dev/fixtures/suites/suites1 dev/fixtures/suites/suites2'

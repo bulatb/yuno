@@ -1,0 +1,26 @@
+
+0 regressions
+
+................................................................................
+0 fixes
+
+................................................................................
+6 passed
+p enrichment/chamber1/subject-hometown.testcase
+p enrichment/chamber1/subject-name.testcase
+p enrichment/chamberskipafew/google-cheat-codes.testcase
+p sesquipedality/long/awkward-silence.testcase
+p sesquipedality/long/spaceladder.testcase
+p sesquipedality/longish/longishbutok.testcase
+................................................................................
+2 failed
+f sesquipedality/footandahalf.testcase
+f sesquipedality/not-long/shrt.testcase
+................................................................................
+1 skipped
+s oopsnoanswer.testcase
+................................................................................
+2 warned
+w enrichment/chamber1/subject-name.testcase
+w sesquipedality/footandahalf.testcase
+................................................................................

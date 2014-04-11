@@ -1,0 +1,31 @@
+
+0 regressions
+
+................................................................................
+0 fixes
+
+................................................................................
+8 passed
+p enrichment/chamber1/subject-hometown.testcase
+p enrichment/chamber1/subject-name.testcase
+p enrichment/chamberskipafew/google-cheat-codes.testcase
+p floccinaucinihilipilification/dont-even-lie.testcase
+p floccinaucinihilipilification/thats-not-a-word.testcase
+p sesquipedality/long/awkward-silence.testcase
+p sesquipedality/long/spaceladder.testcase
+p sesquipedality/longish/longishbutok.testcase
+................................................................................
+4 failed
+f enrichment/chamberskipafew/99/runaway-recursion/ohno/cant-stop-the-bacon/bacon-forever/stack-explodes/poof/no-more-anything/ever/you-broke-it-all/nice-going-hero/gg.testcase
+f sesquipedality/footandahalf.testcase
+f sesquipedality/not-long/shrt.testcase
+f test123.testcase
+................................................................................
+1 skipped
+s oopsnoanswer.testcase
+................................................................................
+3 warned
+w enrichment/chamber1/subject-name.testcase
+w floccinaucinihilipilification/dont-even-lie.testcase
+w sesquipedality/footandahalf.testcase
+................................................................................

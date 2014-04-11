@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 """Classes for defining, loading, and running tests.
 
 """
@@ -6,12 +8,12 @@ import os
 import re
 import posixpath
 import subprocess
+import locale
 
 from yuno.core.config import config
-from yuno.core import history
+from yuno.core import errors, history
 
-import errors
-from util import working_dir, posix_newlines, to_posix_path, multiline_fill
+from .util import working_dir, posix_newlines, to_posix_path, multiline_fill
 
 
 SOURCE_EXTENSION = config.source_extension
@@ -158,9 +160,16 @@ class Test(object):
                     compile_command, e.returncode
                 )
             )
+            output = e.output
 
         try:
-            expected_output = open(self.answer.path, 'rU').read()
+            answer_file = open(self.answer.path)
+            expected_output = answer_file.read()
+            try:
+                output = output.decode('utf-8')
+            except AttributeError:
+                pass
+
             if not self.passes(expected_output, output):
                 harness.test_failed(self, output, expected_output)
             else:
@@ -180,6 +189,10 @@ class Test(object):
 
     def __str__(self):
         return self.source.path
+
+
+    def __lt__(self, other):
+        return self.source.path < other.source.path
 
 
 class Harness(object):
@@ -210,16 +223,16 @@ class Harness(object):
             with open(path) as template:
                 return template.read()
         except IOError:
-            print "WARN: Could not read template: {}".format(path)
+            print("WARN: Could not read template: " + path)
             return default
 
 
     def _report_result(self, message_template, **kwargs):
         message = message_template
-        for (placeholder, value) in kwargs.iteritems():
+        for (placeholder, value) in kwargs.items():
             message = multiline_fill(placeholder, value, message)
 
-        print message
+        print(message)
 
 
     def test_passed(self, test, output):
@@ -287,7 +300,7 @@ class Harness(object):
         self._previously_failing = set()
         self._previously_passing = set()
 
-        with working_dir('./data'):
+        with working_dir(config.data_folder):
             try:
                 read_or_create = os.O_RDONLY | os.O_CREAT
                 failing = os.fdopen(os.open('failing.txt', read_or_create))
@@ -295,7 +308,7 @@ class Harness(object):
                 self._previously_failing = set([f.strip() for f in failing])
                 self._previously_passing = set([p.strip() for p in passing])
             except (IOError, OSError):
-                print "WARN: Failed to load history. Results won't be saved."
+                print("WARN: Failed to load history. Results won't be saved.")
                 self._history_off = True
             finally:
                 failing.close()
@@ -315,19 +328,21 @@ class Harness(object):
 
         failed = [str(test) for test in self.failed]
         passed = [str(test) for test in self.passed]
-        self.regressions = self._previously_passing.intersection(failed)
-        self.fixes = self._previously_failing.intersection(passed)
+        self.regressions = sorted(self._previously_passing.intersection(failed))
+        self.fixes = sorted(self._previously_failing.intersection(passed))
 
         # Making sure to account for tests that weren't run this time.
         now_passing = self._previously_passing.union(passed).difference(failed)
         now_failing = self._previously_failing.union(failed).difference(passed)
 
-        with working_dir('./data'):
-            with open('passing.txt', 'w+') as passing:
-                passing.writelines([str(test) + '\n' for test in now_passing])
+        with working_dir(config.data_folder):
+            Suite(None, 'passing.txt', sorted(now_passing)).save()
+            Suite(None, 'failing.txt', sorted(now_failing)).save()
+            # with open('passing.txt', 'w+') as passing:
+            #     passing.writelines([str(test) + '\n' for test in now_passing])
 
-            with open('failing.txt', 'w+') as failing:
-                failing.writelines([str(test) + '\n' for test in now_failing])
+            # with open('failing.txt', 'w+') as failing:
+            #     failing.writelines([str(test) + '\n' for test in now_failing])
 
         record = history.RunRecord(
             regressions=self.regressions,
@@ -341,22 +356,22 @@ class Harness(object):
 
 
 class Suite(object):
-    @classmethod
-    def from_file(cls, filename):
+    @staticmethod
+    def from_file(filename, test_class=Test):
         try:
             suite_name = os.path.basename(filename).replace('.txt', '')
-            tests = load_from_file(filename)
+            tests = load_from_file(filename, test_class=test_class)
             return Suite(suite_name, filename, tests)
         except IOError:
             raise errors.SuiteLoadError(filename)
 
 
-    @classmethod
-    def from_name(cls, name):
+    @staticmethod
+    def from_name(name, test_class=Test):
         for folder in config.suite_folders:
             filename = posixpath.join(folder, name + '.txt')
             if os.path.isfile(filename):
-                return Suite.from_file(filename)
+                return Suite.from_file(filename, test_class=test_class)
 
         raise errors.SuiteLoadError(name)
 
@@ -396,7 +411,7 @@ def load_from_glob(file_glob, test_class=Test):
     tests = []
 
     with working_dir(config.test_folder):
-        return [test_class(path) for path in globlib.glob(file_glob)]
+        return sorted([test_class(path) for path in globlib.glob(file_glob)])
 
 
 def load_from_file(name_or_handle, test_class=Test, line_filter=None):
@@ -436,7 +451,7 @@ def load_from_file(name_or_handle, test_class=Test, line_filter=None):
             # Got passed an open file. Read it, but don't close it.
             return get_tests(name_or_handle)
 
-    return tests
+    return sorted(tests)
 
 
 def load_all(test_class=Test, filter_fn=None):
@@ -450,16 +465,16 @@ def load_all(test_class=Test, filter_fn=None):
     with working_dir(config.test_folder):
         for root, dirs, files in os.walk('.'):
             for filename in files:
-                if filename.endswith(SOURCE_EXTENSION):
+                if filename.endswith(config.source_extension):
                     tests.append(
                         # [2:] strips the ./ added by os.walk()
                         test_class(posixpath.join(root, filename)[2:])
                     )
 
     if filter_fn:
-        return filter(filter_fn, tests)
+        return sorted(filter(filter_fn, tests))
 
-    return tests
+    return sorted(tests)
 
 
 def load_from_regex(compiled_pattern, test_class=Test):
@@ -522,4 +537,4 @@ def load_by_walking(search_path, test_class=Test):
             return tests
 
     with working_dir(config.test_folder):
-        return search_folder('.', search_path)
+        return sorted(search_folder('.', search_path))

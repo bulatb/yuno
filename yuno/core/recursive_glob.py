@@ -1,13 +1,13 @@
 """A janky globstar implementation, not completely stupid but not really
-optimized. The search is recursive in both senses, so don't use this for
-folders that go more than... a thousand deep?
+optimized. Homegrown because glob2 had no license at the time. It may be
+worth replacing in the future, but for now it's adequate.
 
-But also, why do you have folders that deep? Human, stahp!
+https://github.com/miracle2k/python-glob2/issues/2
 
 """
 
 import os
-import posixpath
+from posixpath import join
 import re
 import sys
 from os.path import isfile, isdir
@@ -23,87 +23,44 @@ def tokenize_glob(glob):
     return glob.split('/')
 
 
-def find_files(folder, pattern, bucket):
-    """Searches a directory for files matching [pattern] and throws them into
-    [bucket]. Standard glob expansion only (with fnmatch).
+def search_folder(path, search_path, globstar_mode=False):
+    if search_path[0] == '**':
+        return search_folder(path, search_path[1:], globstar_mode=True)
+
+    matches = []
+    listing = os.listdir(path)
+
+    if len(search_path) == 1:
+        matches += find_files(path, search_path[0])
+        if not globstar_mode:
+            return matches
+
+    for item in listing:
+        if isdir(os.path.join(path, item)) and item not in IGNORED_FOLDERS:
+            is_matching_folder = fnmatch(item, search_path[0])
+            # `not is_matching_folder` prevents double-counting.
+            if globstar_mode and not is_matching_folder:
+                matches += search_folder(
+                    join(path, item), search_path, globstar_mode=True)
+            elif is_matching_folder:
+                matches += search_folder(join(path, item), search_path[1:])
+
+    return matches
+
+
+def find_files(folder, pattern):
+    """Returns a list of files in <folder> matching <pattern>.
+    Standard glob expansion only (with fnmatch).
 
     """
+    found = []
+
     for entry in os.listdir(folder):
         if isfile(os.path.join(folder, entry)):
             if fnmatch(entry, pattern):
-                bucket.append(posixpath.join(folder, entry))
+                found.append(join(folder, entry))
 
-    return bucket
-
-
-def search_folder(path, search_path, matched_files):
-    """Searches [path] and subdirs (if applicable) for files whose paths
-    match all the fragments in [search_path], in order, expanding standard
-    glob tokens with fnmatch and globstars (**) to zero or more directories.
-
-    [search_path] must end in a pattern that will match a file name.
-
-    Mutates [matched_files] in place and returns it just in case.
-
-    """
-
-    # A globstar expands to zero or more folders between it and the next
-    # folder in the path, if any. The basic idea here is:
-    #
-    #   1. Expand to zero: search this folder again, but chopping off the
-    #      globstar and matching against the next path element. (Inputs are
-    #      filtered so multiple consecutive globstars are crunched into one.)
-    #      That will match things like a/b for a/**/b, but it won't match
-    #      a/a/b.
-    #
-    #   2. Expand to 1: To match the latter, start a new search in each
-    #      subfolder and keep the globstar fragment in the search path.
-    #      That will match a/a/b (but not a/a/a/b) for a/**/b, which puts you
-    #      back at 1.
-    #
-    #   3. When there's just one token left, stop searching folders and match
-    #      filenames instead.
-
-    if len(search_path) == 0:
-        # Search has already used up all its path fragments and reached (past)
-        # the bottom of a tree. Nothing to do here.
-        return matched_files
-    elif len(search_path) == 1:
-        # Step 3
-        return find_files(path, search_path[0], matched_files)
-
-    listing = os.listdir(path)
-    match_any_subfolder = False
-
-    # Step 1
-    if search_path[0] == '**':
-        search_folder(
-            path, search_path[1:], matched_files
-        )
-        match_any_subfolder = True
-
-    # This little hack keeps paths valid and relative while avoiding a
-    # leading dot. (Since They were accessed above with the dot intact.)
-    # It's faster than removing ./ from all the strings later.
-    path = '' if path == '.' else path
-
-    for item in listing:
-        if isdir(os.path.join(path, item)):
-            if item in IGNORED_FOLDERS:
-                continue
-
-            # Step 2
-            if match_any_subfolder:
-                search_folder(
-                    posixpath.join(path, item), search_path, matched_files
-                )
-            # No globstar in this fragment
-            elif fnmatch(item, search_path[0]):
-                search_folder(
-                    posixpath.join(path, item), search_path[1:], matched_files
-                )
-
-    return matched_files
+    return found
 
 
 def glob(file_glob, root='.'):
@@ -118,4 +75,4 @@ def glob(file_glob, root='.'):
     tests = []
     search_path = tokenize_glob(file_glob)
 
-    return search_folder(root, search_path, tests)
+    return search_folder(root, search_path)

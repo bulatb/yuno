@@ -1,0 +1,10 @@
+Running everything (dev/fixtures/repos/one-test):
+
+PASS: [repo root]/1.testcase
+================================================================================
+Ran 1 test
+
+  1 passed
+  0 failed
+
+Saved these tests as new-suite (dev/test_runs/target/new-suite.txt).

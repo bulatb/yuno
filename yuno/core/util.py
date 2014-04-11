@@ -2,19 +2,13 @@ import os
 import posixpath
 import re
 
-# from config import config
-
-
-# def yuno_relative(path_fragment):
-#     return posixpath.join(config.YUNO_HOME, path_fragment)
-
 
 def to_posix_path(path):
     return posixpath.join(*path.split(os.sep))
 
 
-def posix_newlines(string):
-    return string.replace('\r\n', '\n')
+def posix_newlines(text):
+    return text.replace('\r\n', '\n')
 
 
 def multiline_fill(placeholder, value, template):
@@ -38,7 +32,8 @@ def multiline_fill(placeholder, value, template):
 
     """
     if '\n' not in value and '\r' not in value:
-        return template.replace('{%s}' % placeholder, value)
+        # format() would need weird escaping here
+        return template.replace('{' + placeholder + '}', value)
 
     def value_padder(value):
         def padder(matchobj):

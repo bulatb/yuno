@@ -1,0 +1,9 @@
+mode: output
+set:
+  last-run: '1-each-pfs.log'
+command: 'show failed'
+settings:
+  test_folder: dev/fixtures/repos/131-project1-layout
+transform-output:
+  slice-lines:
+    end: -1

@@ -1,0 +1,2 @@
+phase3/check100a/check100a.rc
+phase2/check99/check99.rc

@@ -1,0 +1,34 @@
+// Module-specific settings, loaded and used only by Compile. Any value set
+// here overrides the value with the same name in the default settings.
+//
+// Yuno's main config file is in <yuno root>/settings.
+// -----------------------------------------------------------------------------
+
+{
+    // The test repo for project 2.
+    //
+    "test_folder": "../testcases",
+
+    // Log files go here. Should point to yuno/data on ieng9.
+    //
+    "data_folder": "Q:\\131\\yuno\\data",
+
+    // When your compiler generates assembly from a test case, the file it
+    // generates will be moved to this folder and renamed to match the name
+    // and path of the test case that produced it.
+    //
+    // If you've remote-mounted ieng9, this should point to the same place
+    // as Watch's test_folder key (though the names may be different).
+    //
+    // If not absolute, this path is relative to test_folder.
+    //
+    "assembly_output_folder": "Q:\\131\\testcases",
+
+    // Path to the assembly file that your compiler generates when fed a test
+    // case. Since the working path for your compiler_invocation will be
+    // test_folder, by default your rc.s file will be written there.
+    //
+    // If not absolute, this path is relative to test_folder.
+    //
+    "compiler_output_file": "rc.s"
+}

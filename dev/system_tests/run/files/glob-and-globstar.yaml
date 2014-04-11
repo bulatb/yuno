@@ -1,0 +1,5 @@
+mode: log
+command: 'run files **/check1*/*.rc'
+settings:
+  test_folder: dev/fixtures/repos/131-project1-layout
+  data_folder: dev/test_runs/target

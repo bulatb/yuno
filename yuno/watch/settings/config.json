@@ -1,0 +1,31 @@
+// Module-specific settings, loaded and used only when Watch is run. Any value
+// set here overrides the value with the same name in the default settings.
+//
+// Yuno's main config file is in <yuno root>/settings.
+// -----------------------------------------------------------------------------
+//
+// Remember, these settings are for ieng9.
+//
+// -----------------------------------------------------------------------------
+
+{
+    // How often Watch checks for new test files, in seconds.
+    //
+    "check_interval": 5,
+
+    // Test repo, absolute or relative to Yuno's root.
+    //
+    "test_folder": "../testcases",
+
+    // Log files go here.
+    //
+    "data_folder": "data",
+
+    // Compile assembly test case with I/O files, then run.
+    //
+    "compiler_invocation": "cc {testcase} ../input.c ../output.s && ./a.out",
+
+    // Sparc assembly uses a .s extension.
+    //
+    "source_extension": ".s"
+}

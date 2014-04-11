@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import difflib
 import os
 import re
@@ -9,10 +11,13 @@ from yuno.core import errors, util
 from yuno.core.config import config
 
 
+_read_input = raw_input if sys.version_info[0] == 2 else input
+
+
 def _prompt(message):
-    answer = raw_input(message)
+    answer = _read_input(message)
     while answer not in ('y', 'n'):
-        answer = raw_input(message)
+        answer = _read_input(message)
 
     return answer
 
@@ -31,7 +36,8 @@ class NaiveTest(core.testing.Test):
         )
 
         try:
-            output = subprocess.check_output(compile_command, shell=True)
+            output = subprocess.check_output(
+                compile_command, shell=True, universal_newlines=True)
             harness.test_passed(self, output)
         except subprocess.CalledProcessError as e:
             harness.test_passed(self, e.output)
@@ -86,14 +92,14 @@ class AnswerGeneratingHarness(core.testing.Harness):
 
     def _certify(self, test, output):
         if not self._confirm_correctness():
-            print "-- Changes discarded."
+            print("-- Changes discarded.")
             return
 
         if not os.path.isfile(test.answer.path):
             self._generate_answer_file(test.answer.path, output)
-            print "++ Answer file created."
+            print("++ Answer file created.")
         else:
-            print self._existing_answer_message.format(
+            print(self._existing_answer_message.format(
                 diff=''.join(
                     difflib.unified_diff(
                         open(test.answer.path, 'rU').readlines(),
@@ -102,30 +108,30 @@ class AnswerGeneratingHarness(core.testing.Harness):
                         tofile='proposed answer file'
                     )
                 )
-            )
+            ))
 
             if self._confirm_overwrite():
-                print "++ Answer file updated."
+                print("++ Answer file updated.")
                 self._generate_answer_file(test.answer.path, output)
             else:
-                print "-- Answer discarded."
+                print("-- Answer discarded.")
 
 
     def test_passed(self, test, output):
         output = util.posix_newlines(output)
 
-        print self._result_message.format(
+        print(self._result_message.format(
             test_path=test.source.path_to or '[repo root]',
             test_name=test.source.filename,
             output=output
-        )
+        ))
         self._certify(test, output)
 
-        print "\n\n" + ("=" * 80) + "\n\n"
+        print("\n\n" + ("=" * 80) + "\n\n")
 
 
     def test_warned(self, test, message):
-        print self._warn_message.format(message=message)
+        print(self._warn_message.format(message=message))
 
 
     def run_set(self, test_set):
