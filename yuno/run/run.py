@@ -224,9 +224,11 @@ def save_suite(name, tests, overwrite=False):
 
 
 def build_pauser(to_pause_on):
+    read_input = raw_input if sys.version_info[0] == 2 else input
+
     def pauser(test_result):
         if test_result in to_pause_on:
-            input("Paused. Press Enter to continue.\n")
+            read_input("Paused. Press Enter to continue.\n")
 
     return pauser if to_pause_on is not None else None
 
