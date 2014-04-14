@@ -41,8 +41,6 @@ def _delete_assembly():
 
 
 def _watch_for_files(options):
-    _record_pid()
-
     args, _ = run_cli.get_cli_args(['all'])
     donefile = posixpath.join(settings.test_folder, '.done')
 
