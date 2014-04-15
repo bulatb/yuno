@@ -4,10 +4,12 @@ import os
 import sys
 
 from yuno import core
-from yuno.core import errors, testing, util
+from yuno.core import errors
+from yuno.core import testing
+from yuno.core import util
 from yuno.core.config import config
 
-from . import cli, testing, text
+from yuno.modules.certify import cli, testing, text
 
 
 def _reset_stdin():

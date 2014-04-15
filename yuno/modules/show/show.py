@@ -7,10 +7,13 @@ import posixpath
 from datetime import datetime
 from os.path import isfile
 
-from yuno.core import history, util, errors
+from yuno.core import errors
+from yuno.core import history
+from yuno.core import util
 from yuno.core.config import config
 
-from . import cli, text
+from . import cli
+from . import text
 
 
 def _in_data_folder(filename):

@@ -53,12 +53,12 @@ def variadic_list_action(min_length=2):
     return VariadicListAction
 
 
-def get_cli_args():
+def get_cli_args(argv):
     parser = build_arg_parser()
 
     if len(sys.argv) > 1 and sys.argv[1] in HELP_COMMANDS:
         parser.print_help()
         parser.exit()
 
-    launcher_args, plugin_args = parser.parse_known_args()
+    launcher_args, plugin_args = parser.parse_known_args(argv)
     return launcher_args, plugin_args

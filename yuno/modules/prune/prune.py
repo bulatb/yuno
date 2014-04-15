@@ -3,10 +3,13 @@ from __future__ import print_function
 import os
 import posixpath
 
-from yuno.core import errors, history, testing
+from yuno.core import errors
+from yuno.core import history
+from yuno.core import testing
 from yuno.core.config import config
 
-from . import cli, text
+from . import cli
+from . import text
 
 
 def _remove_deleted_tests(suite, available_tests):

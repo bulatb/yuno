@@ -8,8 +8,10 @@ import subprocess
 import sys
 import time
 
-from yuno.run import run, cli as run_cli
-from yuno.core import config, testing
+from yuno.modules.run import run
+from yuno.modules.run import cli as run_cli
+from yuno.core import config
+from yuno.core import testing
 from yuno.core.config import config as settings
 
 from . import cli

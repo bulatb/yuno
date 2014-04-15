@@ -1,17 +1,17 @@
 #!/usr/bin/env python
 from __future__ import print_function
 
+import argparse
 import glob
 import itertools
 import os
 from os.path import abspath, dirname, join, normpath
 import shlex
 import shutil
+import subprocess
 import sys
 from time import sleep
 
-import argparse
-import subprocess
 import yaml
 
 
@@ -22,7 +22,7 @@ HARNESS_PROJECT = join(YUNO_HOME, 'dev', 'projects', 'harness')
 TARGET_PROJECT = join(YUNO_HOME, 'dev', 'projects', 'target')
 
 PROJECT = join(YUNO_HOME, 'resources', 'default_project')
-YUNO_CMD = join(YUNO_HOME, 'yuno.py')
+YUNO_CMD = 'yuno'
 
 CHECK_AGAINST_LOG = 'log'
 CHECK_AGAINST_OUTPUT = 'output'
@@ -35,7 +35,7 @@ def run_all_tests(args):
     try:
         os.chdir(HARNESS_PROJECT)
         runner = subprocess.Popen(
-            ['python', YUNO_CMD] + args, universal_newlines=True)
+            [YUNO_CMD] + args, universal_newlines=True)
 
         while runner.poll() is None:
             sleep(1)
@@ -64,7 +64,7 @@ def run_single_test(test_name):
     try:
         os.chdir(TARGET_PROJECT)
         output = subprocess.check_output(
-            ['python', YUNO_CMD] + _build_test_command(test_setup),
+            [YUNO_CMD] + _build_test_command(test_setup),
             universal_newlines=True)
 
         if 'transform-output' in test_setup:

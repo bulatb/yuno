@@ -6,7 +6,8 @@ import shutil
 import subprocess
 
 from yuno import core
-from yuno.core import errors, testing
+from yuno.core import errors
+from yuno.core import testing
 from yuno.core.util import working_dir
 from yuno.core.config import config
 

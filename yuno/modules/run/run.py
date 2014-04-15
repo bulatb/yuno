@@ -7,7 +7,9 @@ import re
 import sys
 
 from yuno import core
-from yuno.core import testing, errors, util
+from yuno.core import errors
+from yuno.core import testing
+from yuno.core import util
 from yuno.core.config import config
 
 from . import cli

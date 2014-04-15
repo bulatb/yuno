@@ -1,6 +1,7 @@
 import argparse
 
-from . import diff_routines, help
+from . import diff_routines
+from . import help
 
 
 RUN_ALL = 'all'

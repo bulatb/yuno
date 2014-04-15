@@ -1,6 +1,6 @@
 import argparse
 
-from . import help
+from yuno.modules.certify import help
 
 
 CERTIFY_FILES = 'files'
