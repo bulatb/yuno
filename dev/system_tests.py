@@ -5,7 +5,7 @@ import argparse
 import glob
 import itertools
 import os
-from os.path import abspath, dirname, join, normpath
+from os.path import abspath, dirname, join, normpath, realpath
 import shlex
 import shutil
 import subprocess
@@ -15,14 +15,13 @@ from time import sleep
 import yaml
 
 
-YUNO_HOME = normpath(join(abspath(dirname(__file__)), '..'))
+YUNO_HOME = normpath(join(abspath(dirname(realpath(__file__))), '..'))
 DEV_DIR = join(YUNO_HOME, 'dev')
 
 HARNESS_PROJECT = join(YUNO_HOME, 'dev', 'projects', 'harness')
 TARGET_PROJECT = join(YUNO_HOME, 'dev', 'projects', 'target')
 
 PROJECT = join(YUNO_HOME, 'resources', 'default_project')
-YUNO_CMD = 'yuno'
 
 CHECK_AGAINST_LOG = 'log'
 CHECK_AGAINST_OUTPUT = 'output'
@@ -31,11 +30,17 @@ TESTER_LOG_DIR = 'data'
 TARGET_LOG_DIR = 'scratch'
 
 
-def run_all_tests(args):
+def run_all_tests(args, yuno_cmd, no_install):
+    args.extend([
+        '--with',
+        'compiler_invocation',
+        'python ../system_tests.py%s --e2e {testcase}' % (' -n' if no_install else '')
+    ])
+
     try:
         os.chdir(HARNESS_PROJECT)
         runner = subprocess.Popen(
-            [YUNO_CMD] + args, universal_newlines=True)
+            yuno_cmd + args, universal_newlines=True)
 
         while runner.poll() is None:
             sleep(1)
@@ -49,7 +54,7 @@ def run_all_tests(args):
         print(str(e))
 
 
-def run_single_test(test_name):
+def run_single_test(test_name, yuno_cmd):
     abspath_to_test = abspath(dirname(test_name))
 
     with open(test_name) as system_test:
@@ -64,7 +69,7 @@ def run_single_test(test_name):
     try:
         os.chdir(TARGET_PROJECT)
         output = subprocess.check_output(
-            [YUNO_CMD] + _build_test_command(test_setup),
+            yuno_cmd + _build_test_command(test_setup),
             universal_newlines=True)
 
         if 'transform-output' in test_setup:
@@ -130,18 +135,29 @@ def build_arg_parser():
     parser.add_argument(
         '--e2e',
         dest='test_name',
-        default=None)
+        default=None,
+        help=argparse.SUPPRESS)
+
+    parser.add_argument(
+        '-n', '--no-install',
+        dest='no_install',
+        action='store_true',
+        help='run system tests from unzipped source, without installing')
 
     return parser
-
 
 if __name__ == '__main__':
     version = '.'.join((str(v) for v in sys.version_info[:3]))
     driver_args, yuno_args = build_arg_parser().parse_known_args()
 
+    if driver_args.no_install:
+        yuno_cmd = ['python', join(YUNO_HOME, 'yuno.py')]
+    else:
+        yuno_cmd = ['yuno']
+
     if driver_args.test_name:
-        run_single_test(driver_args.test_name)
+        run_single_test(driver_args.test_name, yuno_cmd)
     else:
         print('(python %s) Running all tests (from %s)...' % (
             version, os.getcwd()))
-        run_all_tests(yuno_args)
+        run_all_tests(yuno_args, yuno_cmd, driver_args.no_install)
